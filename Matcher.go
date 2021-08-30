@@ -19,5 +19,6 @@ func validate(object interface{}) (string, error) {
 
 func validateWithField(object interface{}, field ...string) (string, error) {
 	// todo
+
 	return "", nil
 }
