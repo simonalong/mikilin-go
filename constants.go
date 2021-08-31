@@ -23,4 +23,4 @@ const (
 	DISABLE   = "disable"
 )
 
-const MATCHER = "matcher"
+const CHECK = "check"
