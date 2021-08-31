@@ -30,14 +30,14 @@ type FieldMatcher struct {
 	Matchers []Matcher
 }
 
-type CheckerCollect func(objectTypeName string, objectFieldName string, subCondition string)
+type InfoCollector func(objectTypeName string, objectFieldName string, subCondition string)
 
-type CheckerEntity struct {
-	name           string
-	checkerCollect CheckerCollect
+type CollectorEntity struct {
+	name         string
+	infCollector InfoCollector
 }
 
-var checkerEntities []CheckerEntity
+var checkerEntities []CollectorEntity
 
 /* key：类全名，value：key：属性名 */
 var matcherMap = make(map[string]map[string]FieldMatcher)
@@ -88,7 +88,7 @@ func collectChecker(objectName string, fieldName string, matchJudge string) {
 
 func buildChecker(objectName string, fieldName string, subStr string) {
 	for _, entity := range checkerEntities {
-		entity.checkerCollect(objectName, fieldName, subStr)
+		entity.infCollector(objectName, fieldName, subStr)
 	}
 }
 
@@ -122,21 +122,21 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 // 包的初始回调
 func init() {
 	/* 搜集匹配后的操作参数 */
-	checkerEntities = append(checkerEntities, CheckerEntity{ERR_MSG, collectErrMsg})
-	checkerEntities = append(checkerEntities, CheckerEntity{CHANGE_TO, collectChangeTo})
-	checkerEntities = append(checkerEntities, CheckerEntity{ACCEPT, collectAccept})
-	checkerEntities = append(checkerEntities, CheckerEntity{DISABLE, collectDisable})
+	checkerEntities = append(checkerEntities, CollectorEntity{ERR_MSG, collectErrMsg})
+	checkerEntities = append(checkerEntities, CollectorEntity{CHANGE_TO, collectChangeTo})
+	checkerEntities = append(checkerEntities, CollectorEntity{ACCEPT, collectAccept})
+	checkerEntities = append(checkerEntities, CollectorEntity{DISABLE, collectDisable})
 
-	/* 构造匹配器 */
-	checkerEntities = append(checkerEntities, CheckerEntity{VALUE, buildValuesMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{IS_NIL, buildIsNilMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{IS_BLANK, buildIsBlankMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{RANGE, buildRangeMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{MODEL, buildModelMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{ENUM_TYPE, buildEnumTypeMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{CONDITION, buildConditionMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{CUSTOMIZE, buildCustomizeMatcher})
-	checkerEntities = append(checkerEntities, CheckerEntity{REGEX, buildRegexMatcher})
+	/* 搜集匹配器 */
+	checkerEntities = append(checkerEntities, CollectorEntity{VALUE, buildValuesMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{IS_NIL, buildIsNilMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{CONDITION, buildConditionMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{CUSTOMIZE, buildCustomizeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{REGEX, buildRegexMatcher})
 }
 
 func collectErrMsg(objectTypeName string, objectFieldName string, subCondition string) {
