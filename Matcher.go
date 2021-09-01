@@ -80,7 +80,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 		}
 
 		// 基本类型
-		if !isCheckedKing(fieldValue.Kind()) {
+		if isCheckedKing(fieldValue.Kind()) {
 			tagJudge := field.Tag.Get(MATCH)
 			if len(tagJudge) == 0 {
 				continue
@@ -94,7 +94,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 				return false, checkResult.ErrMsg
 			}
 		} else if fieldValue.Kind() == reflect.Struct {
-			// todo
+			fieldValue.NumField()
 		} else if fieldValue.Kind() == reflect.Map {
 			// todo
 		} else if fieldValue.Kind() == reflect.Array {
@@ -127,28 +127,32 @@ func collectCollector(object interface{}) {
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
 		fieldValue := objValue.Field(index)
+		fieldKind := fieldValue.Kind()
 
-		if fieldValue.Kind() == reflect.Ptr && !fieldValue.IsNil() {
+		if fieldKind == reflect.Ptr && !fieldValue.IsNil() {
 			fieldValue = fieldValue.Elem()
 		}
 
 		// 基本类型
-		if !isCheckedKing(fieldValue.Kind()) {
+		if isCheckedKing(fieldKind) {
 			tagJudge := field.Tag.Get(MATCH)
 			if len(tagJudge) == 0 {
 				continue
 			}
 
 			if _, contain := matcherMap[objectName][field.Name]; !contain {
-				collectChecker(objType.String(), fieldValue.Kind(), field.Name, tagJudge)
+				collectChecker(objType.String(), fieldKind, field.Name, tagJudge)
 			}
-		} else if fieldValue.Kind() == reflect.Struct {
+		} else if fieldKind == reflect.Struct {
+			for index, num := 0, fieldValue.NumField(); index < num; index++ {
+				// todo 这里因为属性为小写，因此不能进行访问，这里要进行过滤处理
+				collectCollector(fieldValue.Interface())
+			}
+		} else if fieldKind == reflect.Map {
 			// todo
-		} else if fieldValue.Kind() == reflect.Map {
+		} else if fieldKind == reflect.Array {
 			// todo
-		} else if fieldValue.Kind() == reflect.Array {
-			// todo
-		} else if fieldValue.Kind() == reflect.Slice {
+		} else if fieldKind == reflect.Slice {
 			// todo
 		}
 	}
@@ -159,6 +163,7 @@ func collectCollector(object interface{}) {
 func inArray(fieldName string, fieldNames ...string) bool {
 	for _, name := range fieldNames {
 		name = strings.ToUpper(name[:1]) + name[1:]
+		fieldName = strings.ToUpper(fieldName[:1]) + fieldName[1:]
 		if name == fieldName {
 			return true
 		}

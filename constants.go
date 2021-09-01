@@ -24,3 +24,4 @@ const (
 )
 
 const MATCH = "match"
+const CHECK = "check"
