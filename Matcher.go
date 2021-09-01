@@ -1,13 +1,15 @@
 package mikilin
 
 import (
-	"fmt"
 	matcher "github.com/SimonAlong/Mikilin-go/match"
 	log "github.com/sirupsen/logrus"
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 )
+
+var lock sync.Mutex
 
 type Matcher interface {
 	Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool
@@ -61,43 +63,97 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 		return true, ""
 	}
 
-	fmt.Println(objType.String())
+	// 搜集核查器
+	collectCollector(object)
+
 	ch := make(chan *CheckResult)
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
+		fieldValue := objValue.Field(index)
 
 		if !inArray(field.Name, fieldNames...) {
 			continue
 		}
 
-		//fieldKind := objValue.Field(index).Kind()
-		// 非核查类型则返回
-		//if !isCheckedBaseKing(fieldKind) {
-		//	continue
-		//} else if fieldKind == reflect.Struct {
-		//
-		//}
-
-		tagJudge := field.Tag.Get(MATCH)
-		if len(tagJudge) == 0 {
-			continue
+		if fieldValue.Kind() == reflect.Ptr && !fieldValue.IsNil() {
+			fieldValue = fieldValue.Elem()
 		}
 
-		// 搜集核查器
-		if _, contain := matcherMap[objType.String()][field.Name]; !contain {
-			collectChecker(objType.String(), objValue.Field(index).Kind(), field.Name, tagJudge)
-		}
+		// 基本类型
+		if !isCheckedKing(fieldValue.Kind()) {
+			tagJudge := field.Tag.Get(MATCH)
+			if len(tagJudge) == 0 {
+				continue
+			}
 
-		// 核查结果：任何一个属性失败，则返回失败
-		go check(object, field, objValue.Field(index).Interface(), ch)
-		checkResult := <-ch
-		if !checkResult.Result {
-			close(ch)
-			return false, checkResult.ErrMsg
+			// 核查结果：任何一个属性失败，则返回失败
+			go check(object, field, fieldValue.Interface(), ch)
+			checkResult := <-ch
+			if !checkResult.Result {
+				close(ch)
+				return false, checkResult.ErrMsg
+			}
+		} else if fieldValue.Kind() == reflect.Struct {
+			// todo
+		} else if fieldValue.Kind() == reflect.Map {
+			// todo
+		} else if fieldValue.Kind() == reflect.Array {
+			// todo
+		} else if fieldValue.Kind() == reflect.Slice {
+			// todo
 		}
 	}
 	close(ch)
 	return true, ""
+}
+
+// 搜集核查器
+func collectCollector(object interface{}) {
+	objType := reflect.TypeOf(object)
+	objValue := reflect.ValueOf(object)
+	objectName := objType.Name()
+
+	/* 搜集过则不再搜集 */
+	if _, contain := matcherMap[objectName]; contain {
+		return
+	}
+
+	lock.Lock()
+	/* 搜集过则不再搜集 */
+	if _, contain := matcherMap[objectName]; contain {
+		return
+	}
+
+	for index, num := 0, objType.NumField(); index < num; index++ {
+		field := objType.Field(index)
+		fieldValue := objValue.Field(index)
+
+		if fieldValue.Kind() == reflect.Ptr && !fieldValue.IsNil() {
+			fieldValue = fieldValue.Elem()
+		}
+
+		// 基本类型
+		if !isCheckedKing(fieldValue.Kind()) {
+			tagJudge := field.Tag.Get(MATCH)
+			if len(tagJudge) == 0 {
+				continue
+			}
+
+			if _, contain := matcherMap[objectName][field.Name]; !contain {
+				collectChecker(objType.String(), fieldValue.Kind(), field.Name, tagJudge)
+			}
+		} else if fieldValue.Kind() == reflect.Struct {
+			// todo
+		} else if fieldValue.Kind() == reflect.Map {
+			// todo
+		} else if fieldValue.Kind() == reflect.Array {
+			// todo
+		} else if fieldValue.Kind() == reflect.Slice {
+			// todo
+		}
+	}
+
+	lock.Unlock()
 }
 
 func inArray(fieldName string, fieldNames ...string) bool {
@@ -258,8 +314,8 @@ func buildCustomizeMatcher(objectTypeName string, objectFieldName string, subCon
 
 }
 
-// 判断是否是核查的基本类型
-func isCheckedBaseKing(fieldKing reflect.Kind) bool {
+// 判断是否是核查的类型
+func isCheckedKing(fieldKing reflect.Kind) bool {
 	switch fieldKing {
 	case reflect.Int:
 		return true
@@ -286,6 +342,8 @@ func isCheckedBaseKing(fieldKing reflect.Kind) bool {
 	case reflect.Float64:
 		return true
 	case reflect.Bool:
+		return true
+	case reflect.String:
 		return true
 	default:
 		return false
