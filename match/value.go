@@ -3,6 +3,7 @@ package matcher
 import (
 	"fmt"
 	"reflect"
+	"unsafe"
 )
 
 type ValueMatch struct {
@@ -13,6 +14,8 @@ type ValueMatch struct {
 func (valueMatch *ValueMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	values := valueMatch.Values
 	fmt.Println(fieldValue)
+	fmt.Println(field.Name)
+	var filedName = field.Name
 	fmt.Println(values)
 
 	for _, value := range values {
@@ -21,7 +24,7 @@ func (valueMatch *ValueMatch) Match(object interface{}, field reflect.StructFiel
 			return true
 		}
 	}
-	valueMatch.SetBlack("属性 %s 的值 %s 不在只可用列表 %v 中", field, fieldValue, values)
+	valueMatch.SetWhite("属性 "+filedName+" 的值 %v 不在只可用列表 %v 中", unsafe.Sizeof(fieldValue), values)
 	return false
 }
 

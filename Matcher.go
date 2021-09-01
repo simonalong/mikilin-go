@@ -105,13 +105,13 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 			if accept {
 				if !matchResult {
 					// 白名单，没有匹配上则返回false
-					ch <- &CheckResult{Result: false, ErrMsg: match.GetBlackMsg()}
+					ch <- &CheckResult{Result: false, ErrMsg: match.GetWhitMsg()}
 					return
 				}
 			} else {
 				if matchResult {
 					// 黑名单，匹配上则返回false
-					ch <- &CheckResult{Result: false, ErrMsg: match.GetWhitMsg()}
+					ch <- &CheckResult{Result: false, ErrMsg: match.GetBlackMsg()}
 					return
 				}
 			}

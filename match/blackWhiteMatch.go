@@ -8,9 +8,9 @@ type BlackWhiteMatch struct {
 }
 
 func (blackWhiteMatch *BlackWhiteMatch) SetBlack(format string, a ...interface{}) {
-	blackWhiteMatch.BlackMsg = fmt.Sprintf(format, a)
+	blackWhiteMatch.BlackMsg = fmt.Sprintf("核查错误："+format, a)
 }
 
 func (blackWhiteMatch *BlackWhiteMatch) SetWhite(format string, a ...interface{}) {
-	blackWhiteMatch.WhiteMsg = fmt.Sprintf(format, a)
+	blackWhiteMatch.WhiteMsg = fmt.Sprintf("核查错误："+format, a)
 }
