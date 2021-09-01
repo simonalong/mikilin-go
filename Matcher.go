@@ -170,6 +170,9 @@ func buildValuesMatcher(objectTypeName string, objectFieldName string, subCondit
 		var valueMatchers []interface{}
 		for _, subValue := range strings.Split(value, ",") {
 			subValue = strings.TrimSpace(subValue)
+
+			// todo 将对应的值转换为field对应的类型才行
+
 			valueMatchers = append(valueMatchers, subValue)
 		}
 		valueMatch := matcher.ValueMatch{Values: valueMatchers}
@@ -177,7 +180,7 @@ func buildValuesMatcher(objectTypeName string, objectFieldName string, subCondit
 		var matchers []Matcher
 		matchers = append(matchers, &valueMatch)
 
-		/* 添加匹配器到map */
+		// 添加匹配器到map
 		fieldMatcher, contain := matcherMap[objectTypeName][objectFieldName]
 		if !contain {
 			matcherMap[objectTypeName] = make(map[string]FieldMatcher)

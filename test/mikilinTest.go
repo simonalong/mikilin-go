@@ -11,8 +11,8 @@ type ValidateEntity struct {
 }
 
 type MyEntity struct {
-	Name string
-	Age  int `match:"value={12, 32}"`
+	Name string `match:"value={songjiang, chenzhen}"`
+	Age  int
 }
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 
 func myTag() {
 
-	entity := MyEntity{Age: 21}
+	entity := MyEntity{Name: "songjiang"}
 
 	result, errMsg := mikilin.Check(entity)
 	if !result {

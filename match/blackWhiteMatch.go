@@ -1,6 +1,9 @@
 package matcher
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type BlackWhiteMatch struct {
 	BlackMsg string
@@ -8,9 +11,19 @@ type BlackWhiteMatch struct {
 }
 
 func (blackWhiteMatch *BlackWhiteMatch) SetBlack(format string, a ...interface{}) {
-	blackWhiteMatch.BlackMsg = fmt.Sprintf("核查错误："+format, a)
+	var values []interface{}
+	for _, data := range a {
+		myValue, _ := json.Marshal(data)
+		values = append(values, string(myValue))
+	}
+	blackWhiteMatch.BlackMsg = fmt.Sprintf("核查错误："+format, values...)
 }
 
 func (blackWhiteMatch *BlackWhiteMatch) SetWhite(format string, a ...interface{}) {
-	blackWhiteMatch.WhiteMsg = fmt.Sprintf("核查错误："+format, a)
+	var values []interface{}
+	for _, data := range a {
+		myValue, _ := json.Marshal(data)
+		values = append(values, string(myValue))
+	}
+	blackWhiteMatch.WhiteMsg = fmt.Sprintf("核查错误："+format, values...)
 }
