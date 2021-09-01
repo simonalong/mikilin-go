@@ -21,9 +21,9 @@ func main() {
 
 func myTag() {
 
-	myentity := MyEntity{Age: 21}
+	entity := MyEntity{Age: 21}
 
-	result, errMsg := mikilin.Check(myentity)
+	result, errMsg := mikilin.Check(entity)
 	if !result {
 		log.Print(errMsg)
 	}
