@@ -49,13 +49,26 @@ var checkerEntities []CollectorEntity
 /* key：类全名，value：key：属性名 */
 var matcherMap = make(map[string]map[string]FieldMatcher)
 
-func Check(object interface{}) (bool, string) {
+func Check(object interface{}, fieldNames ...string) (bool, string) {
 	objType := reflect.TypeOf(object)
 	objValue := reflect.ValueOf(object)
 	fmt.Println(objType.String())
 	ch := make(chan *CheckResult)
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
+
+		// todo
+		if !inArray(field.Name, fieldNames...) {
+			continue
+		}
+
+		//fieldKind := objValue.Field(index).Kind()
+		// 非核查类型则返回
+		//if !isCheckedBaseKing(fieldKind) {
+		//	continue
+		//} else if fieldKind == reflect.Struct {
+		//
+		//}
 
 		tagJudge := field.Tag.Get(MATCH)
 		if len(tagJudge) == 0 {
@@ -77,6 +90,16 @@ func Check(object interface{}) (bool, string) {
 	}
 	close(ch)
 	return true, ""
+}
+
+func inArray(fieldName string, fieldNames ...string) bool {
+	for _, name := range fieldNames {
+		name = strings.ToUpper(name[:1]) + name[1:]
+		if name == fieldName {
+			return true
+		}
+	}
+	return false
 }
 
 func collectChecker(objectName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
@@ -227,10 +250,50 @@ func buildCustomizeMatcher(objectTypeName string, objectFieldName string, subCon
 
 }
 
+// 判断是否是核查的基本类型
+func isCheckedBaseKing(fieldKing reflect.Kind) bool {
+	switch fieldKing {
+	case reflect.Int:
+		return true
+	case reflect.Int8:
+		return true
+	case reflect.Int16:
+		return true
+	case reflect.Int32:
+		return true
+	case reflect.Int64:
+		return true
+	case reflect.Uint:
+		return true
+	case reflect.Uint8:
+		return true
+	case reflect.Uint16:
+		return true
+	case reflect.Uint32:
+		return true
+	case reflect.Uint64:
+		return true
+	case reflect.Float32:
+		return true
+	case reflect.Float64:
+		return true
+	case reflect.Bool:
+		return true
+	default:
+		return false
+	}
+}
+
+func isMapKing(fieldKind reflect.Kind) {
+	if fieldKind == reflect.Struct {
+
+	}
+}
+
 func cast(fieldKind reflect.Kind, valueStr string) (interface{}, error) {
 	switch fieldKind {
 	case reflect.Int:
-		return strconv.ParseInt(valueStr, 10, 0)
+		return strconv.Atoi(valueStr)
 	case reflect.Int8:
 		return strconv.ParseInt(valueStr, 10, 8)
 	case reflect.Int16:
