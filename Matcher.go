@@ -52,12 +52,20 @@ var matcherMap = make(map[string]map[string]FieldMatcher)
 func Check(object interface{}, fieldNames ...string) (bool, string) {
 	objType := reflect.TypeOf(object)
 	objValue := reflect.ValueOf(object)
+
+	if objValue.Kind() == reflect.Ptr && !objValue.IsNil() {
+		objValue = objValue.Elem()
+	}
+
+	if objValue.Kind() != reflect.Struct {
+		return true, ""
+	}
+
 	fmt.Println(objType.String())
 	ch := make(chan *CheckResult)
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
 
-		// todo
 		if !inArray(field.Name, fieldNames...) {
 			continue
 		}
