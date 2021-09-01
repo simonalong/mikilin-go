@@ -25,33 +25,3 @@ func AssertFalseErr(t *testing.T, value bool, errMsg string) {
 		t.Errorf("expect false, but actual is true, error: %v", errMsg)
 	}
 }
-
-func AssertEqual(t *testing.T, left interface{}, right interface{}) {
-	if left != right {
-		t.Error("expect false, but actual is true")
-	}
-}
-
-//func AssertNotEqual() bool {
-//
-//}
-//
-//func AssertArrayEqual() bool {
-//
-//}
-//
-//func AssertArrayNotEqual() bool {
-//
-//}
-//
-//func AssertNil() bool {
-//
-//}
-//
-//func AssertNotNil() bool {
-//
-//}
-
-//func AssertThat() bool {
-//
-//}
