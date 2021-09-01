@@ -2,7 +2,7 @@ package main
 
 import (
 	mikilin "github.com/SimonAlong/Mikilin-go"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 type ValidateEntity struct {
@@ -11,8 +11,8 @@ type ValidateEntity struct {
 }
 
 type MyEntity struct {
-	Name string `match:"value={songjiang, chenzhen}"`
-	Age  int
+	Name string
+	Age  int `match:"value={asdf, 322}"`
 }
 
 func main() {
@@ -21,10 +21,10 @@ func main() {
 
 func myTag() {
 
-	entity := MyEntity{Name: "songjiang"}
+	entity := MyEntity{Age: 32}
 
 	result, errMsg := mikilin.Check(entity)
 	if !result {
-		log.Print(errMsg)
+		log.Error(errMsg)
 	}
 }

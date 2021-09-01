@@ -3,7 +3,9 @@ package mikilin
 import (
 	"fmt"
 	matcher "github.com/SimonAlong/Mikilin-go/match"
+	log "github.com/sirupsen/logrus"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -30,7 +32,7 @@ type FieldMatcher struct {
 	Matchers []Matcher
 }
 
-type InfoCollector func(objectTypeName string, objectFieldName string, subCondition string)
+type InfoCollector func(objectTypeName string, fieldKind reflect.Kind, objectFieldName string, subCondition string)
 
 type CollectorEntity struct {
 	name         string
@@ -62,7 +64,7 @@ func Check(object interface{}) (bool, string) {
 
 		// 搜集核查器
 		if _, contain := matcherMap[objType.String()][field.Name]; !contain {
-			collectChecker(objType.String(), field.Name, tagJudge)
+			collectChecker(objType.String(), objValue.Field(index).Kind(), field.Name, tagJudge)
 		}
 
 		// 核查结果：任何一个属性失败，则返回失败
@@ -77,17 +79,17 @@ func Check(object interface{}) (bool, string) {
 	return true, ""
 }
 
-func collectChecker(objectName string, fieldName string, matchJudge string) {
+func collectChecker(objectName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
 	subCondition := strings.Split(matchJudge, ";")
 	for _, subStr := range subCondition {
 		subStr = strings.TrimSpace(subStr)
-		buildChecker(objectName, fieldName, subStr)
+		buildChecker(objectName, fieldKind, fieldName, subStr)
 	}
 }
 
-func buildChecker(objectName string, fieldName string, subStr string) {
+func buildChecker(objectName string, fieldKind reflect.Kind, fieldName string, subStr string) {
 	for _, entity := range checkerEntities {
-		entity.infCollector(objectName, fieldName, subStr)
+		entity.infCollector(objectName, fieldKind, fieldName, subStr)
 	}
 }
 
@@ -124,21 +126,21 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 // 包的初始回调
 func init() {
 	/* 搜集匹配后的操作参数 */
-	checkerEntities = append(checkerEntities, CollectorEntity{ERR_MSG, collectErrMsg})
-	checkerEntities = append(checkerEntities, CollectorEntity{CHANGE_TO, collectChangeTo})
-	checkerEntities = append(checkerEntities, CollectorEntity{ACCEPT, collectAccept})
-	checkerEntities = append(checkerEntities, CollectorEntity{DISABLE, collectDisable})
+	//checkerEntities = append(checkerEntities, CollectorEntity{ERR_MSG, collectErrMsg})
+	//checkerEntities = append(checkerEntities, CollectorEntity{CHANGE_TO, collectChangeTo})
+	//checkerEntities = append(checkerEntities, CollectorEntity{ACCEPT, collectAccept})
+	//checkerEntities = append(checkerEntities, CollectorEntity{DISABLE, collectDisable})
 
 	/* 搜集匹配器 */
 	checkerEntities = append(checkerEntities, CollectorEntity{VALUE, buildValuesMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{IS_NIL, buildIsNilMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{CONDITION, buildConditionMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{CUSTOMIZE, buildCustomizeMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{REGEX, buildRegexMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{IS_NIL, buildIsNilMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{CONDITION, buildConditionMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{CUSTOMIZE, buildCustomizeMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{REGEX, buildRegexMatcher})
 }
 
 func collectErrMsg(objectTypeName string, objectFieldName string, subCondition string) {
@@ -157,7 +159,7 @@ func collectDisable(objectTypeName string, objectFieldName string, subCondition 
 
 }
 
-func buildValuesMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildValuesMatcher(objectTypeName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 	if !strings.Contains(subCondition, VALUE) || !strings.Contains(subCondition, EQUAL) {
 		return
 	}
@@ -167,15 +169,16 @@ func buildValuesMatcher(objectTypeName string, objectFieldName string, subCondit
 
 	if strings.HasPrefix(value, "{") && strings.HasSuffix(value, "}") {
 		value = value[1 : len(value)-1]
-		var valueMatchers []interface{}
+		var availableValues []interface{}
 		for _, subValue := range strings.Split(value, ",") {
 			subValue = strings.TrimSpace(subValue)
-
-			// todo 将对应的值转换为field对应的类型才行
-
-			valueMatchers = append(valueMatchers, subValue)
+			if chgValue, err := cast(fieldKind, subValue); err == nil {
+				availableValues = append(availableValues, chgValue)
+			} else {
+				log.Error(err.Error())
+			}
 		}
-		valueMatch := matcher.ValueMatch{Values: valueMatchers}
+		valueMatch := matcher.ValueMatch{Values: availableValues}
 
 		var matchers []Matcher
 		matchers = append(matchers, &valueMatch)
@@ -222,4 +225,37 @@ func buildRegexMatcher(objectTypeName string, objectFieldName string, subConditi
 
 func buildCustomizeMatcher(objectTypeName string, objectFieldName string, subCondition string) {
 
+}
+
+func cast(fieldKind reflect.Kind, valueStr string) (interface{}, error) {
+	switch fieldKind {
+	case reflect.Int:
+		return strconv.ParseInt(valueStr, 10, 0)
+	case reflect.Int8:
+		return strconv.ParseInt(valueStr, 10, 8)
+	case reflect.Int16:
+		return strconv.ParseInt(valueStr, 10, 16)
+	case reflect.Int32:
+		return strconv.ParseInt(valueStr, 10, 32)
+	case reflect.Int64:
+		return strconv.ParseInt(valueStr, 10, 64)
+	case reflect.Uint:
+		return strconv.ParseUint(valueStr, 10, 0)
+	case reflect.Uint8:
+		return strconv.ParseUint(valueStr, 10, 8)
+	case reflect.Uint16:
+		return strconv.ParseUint(valueStr, 10, 16)
+	case reflect.Uint32:
+		return strconv.ParseUint(valueStr, 10, 32)
+	case reflect.Uint64:
+		return strconv.ParseUint(valueStr, 10, 64)
+	case reflect.Float32:
+		return strconv.ParseFloat(valueStr, 32)
+	case reflect.Float64:
+		return strconv.ParseFloat(valueStr, 64)
+	case reflect.Bool:
+		return strconv.ParseBool(valueStr)
+	}
+
+	return valueStr, nil
 }
