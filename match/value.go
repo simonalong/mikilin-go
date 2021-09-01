@@ -6,6 +6,7 @@ import (
 )
 
 type ValueMatch struct {
+	BlackWhiteMatch
 	Values []interface{}
 }
 
@@ -16,9 +17,11 @@ func (valueMatch *ValueMatch) Match(object interface{}, field reflect.StructFiel
 
 	for _, value := range values {
 		if value == fieldValue {
+			valueMatch.SetBlack("属性 %s 的值 %s 位于禁用值 %v 中", field.Name, fieldValue, values)
 			return true
 		}
 	}
+	valueMatch.SetBlack("属性 %s 的值 %s 不在只可用列表 %v 中", field, fieldValue, values)
 	return false
 }
 
@@ -26,10 +29,10 @@ func (valueMatch *ValueMatch) IsEmpty() bool {
 	return len(valueMatch.Values) == 0
 }
 
-func (valueMatch *ValueMatch) WhitMsg() string {
-	return ""
+func (valueMatch *ValueMatch) GetWhitMsg() string {
+	return valueMatch.WhiteMsg
 }
 
-func (valueMatch *ValueMatch) BlackMsg() string {
-	return ""
+func (valueMatch *ValueMatch) GetBlackMsg() string {
+	return valueMatch.BlackMsg
 }

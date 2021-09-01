@@ -10,8 +10,8 @@ import (
 type Matcher interface {
 	Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool
 	IsEmpty() bool
-	WhitMsg() string
-	BlackMsg() string
+	GetWhitMsg() string
+	GetBlackMsg() string
 }
 
 type FieldMatcher struct {
@@ -37,19 +37,25 @@ type CollectorEntity struct {
 	infCollector InfoCollector
 }
 
+type CheckResult struct {
+	Result bool
+	ErrMsg string
+}
+
 var checkerEntities []CollectorEntity
 
 /* key：类全名，value：key：属性名 */
 var matcherMap = make(map[string]map[string]FieldMatcher)
 
-func Check(object interface{}) bool {
+func Check(object interface{}) (bool, string) {
 	objType := reflect.TypeOf(object)
 	objValue := reflect.ValueOf(object)
 	fmt.Println(objType.String())
+	ch := make(chan *CheckResult)
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
 
-		tagJudge := field.Tag.Get(CHECK)
+		tagJudge := field.Tag.Get(MATCH)
 		if len(tagJudge) == 0 {
 			continue
 		}
@@ -60,22 +66,15 @@ func Check(object interface{}) bool {
 		}
 
 		// 核查结果：任何一个属性失败，则返回失败
-		matchResult := check(object, field, objValue.Field(index).Interface())
-		if !matchResult {
-			return false
+		go check(object, field, objValue.Field(index).Interface(), ch)
+		checkResult := <-ch
+		if !checkResult.Result {
+			close(ch)
+			return false, checkResult.ErrMsg
 		}
 	}
-	return true
-}
-
-func ErrMsg() string {
-	// todo errMsg
-	return "出错啦"
-}
-
-func ErrMsgMap() map[string]interface{} {
-	// todo
-	return nil
+	close(ch)
+	return true, ""
 }
 
 func collectChecker(objectName string, fieldName string, matchJudge string) {
@@ -92,31 +91,34 @@ func buildChecker(objectName string, fieldName string, subStr string) {
 	}
 }
 
-func check(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+func check(object interface{}, field reflect.StructField, fieldValue interface{}, ch chan *CheckResult) {
 	objectType := reflect.TypeOf(object)
 	if fieldMatcher, contain := matcherMap[objectType.String()][field.Name]; contain {
 		accept := fieldMatcher.accept
 		matchers := fieldMatcher.Matchers
-		for _, entity := range matchers {
-			if entity.IsEmpty() {
+		for _, match := range matchers {
+			if match.IsEmpty() {
 				continue
 			}
 
-			matchResult := entity.Match(object, field, fieldValue)
+			matchResult := match.Match(object, field, fieldValue)
 			if accept {
 				if !matchResult {
 					// 白名单，没有匹配上则返回false
-					return false
+					ch <- &CheckResult{Result: false, ErrMsg: match.GetBlackMsg()}
+					return
 				}
 			} else {
 				if matchResult {
 					// 黑名单，匹配上则返回false
-					return false
+					ch <- &CheckResult{Result: false, ErrMsg: match.GetWhitMsg()}
+					return
 				}
 			}
 		}
 	}
-	return true
+	ch <- &CheckResult{Result: true}
+	return
 }
 
 // 包的初始回调
