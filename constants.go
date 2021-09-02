@@ -13,7 +13,6 @@ const (
 	RANGE = "range"
 	// 模式类型匹配
 	MODEL     = "model"
-	ENUM_TYPE = "enumType"
 	CONDITION = "condition"
 	REGEX     = "regex"
 	CUSTOMIZE = "customize"
