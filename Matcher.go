@@ -56,8 +56,10 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 	objType := reflect.TypeOf(object)
 	objValue := reflect.ValueOf(object)
 
-	if objValue.Kind() == reflect.Ptr && !objValue.IsNil() {
+	// 指针类型按照指针类型
+	if objValue.Kind() == reflect.Ptr {
 		objValue = objValue.Elem()
+		return Check(objValue.Interface(), fieldNames...)
 	}
 
 	if objValue.Kind() != reflect.Struct {
@@ -164,6 +166,13 @@ func doCollectCollector(objType reflect.Type, objValue reflect.Value) {
 		return
 	}
 
+	// 指针类型按照指针类型
+	if objValue.Kind() == reflect.Ptr {
+		objValue = objValue.Elem()
+		doCollectCollector(objType.Elem(), objValue)
+		return
+	}
+
 	objectFullName := objType.String()
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
@@ -175,8 +184,8 @@ func doCollectCollector(objType reflect.Type, objValue reflect.Value) {
 			continue
 		}
 
-		if fieldKind == reflect.Ptr && !fieldValue.IsNil() {
-			fieldValue = fieldValue.Elem()
+		if fieldKind == reflect.Ptr {
+			fieldKind = field.Type.Elem().Kind()
 		}
 
 		// 基本类型
