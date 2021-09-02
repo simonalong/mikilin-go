@@ -101,6 +101,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 				return false, checkResult.ErrMsg
 			}
 		} else if fieldValue.Kind() == reflect.Struct {
+			// struct 结构类型
 			tagMatch := field.Tag.Get(MATCH)
 			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != CHECK) {
 				continue
@@ -168,16 +169,17 @@ func doCollectCollector(objType reflect.Type, objValue reflect.Value, objectName
 				collectChecker(objType.String(), fieldKind, field.Name, tagMatch)
 			}
 		} else if fieldKind == reflect.Struct {
+			// struct 结构类型
 			tagMatch := field.Tag.Get(MATCH)
 			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != CHECK) {
 				continue
 			}
 
-			fieldType := reflect.TypeOf(fieldValue.Interface())
-			fieldValue := reflect.ValueOf(fieldValue.Interface())
-			fieldName := objType.Name()
-			doCollectCollector(fieldType, fieldValue, fieldName)
+			doCollectCollector(reflect.TypeOf(fieldValue.Interface()), reflect.ValueOf(fieldValue.Interface()), field.Name)
 		} else if fieldKind == reflect.Map {
+			if fieldValue.Len() == 0 {
+				continue
+			}
 			// todo
 		} else if fieldKind == reflect.Array {
 			// todo
