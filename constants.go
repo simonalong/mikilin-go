@@ -5,8 +5,6 @@ const (
 	EQUAL = "="
 	// VALUE 值列表
 	VALUE = "value"
-	// IS_NIL 为空匹配
-	IS_NIL = "isNil"
 	// IS_BLANK 字符为空匹配
 	IS_BLANK = "isBlank"
 	// 范围匹配
