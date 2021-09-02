@@ -31,10 +31,15 @@ type ValueMapEntity struct {
 	InnerMap map[string]ValueInnerEntity `match:"check"`
 }
 
+// 测试基本类型
 func TestValueBase(t *testing.T) {
-	// 测试 正常情况
-	value := ValueBaseEntity{Age: 12}
-	result, err := mikilin.Check(value, "age")
+	var value ValueBaseEntity
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = ValueBaseEntity{Age: 12}
+	result, err = mikilin.Check(value, "age")
 	assert.AssertTrueErr(t, result, err)
 
 	// 测试 正常情况
@@ -63,6 +68,7 @@ func TestValueBase(t *testing.T) {
 	assert.AssertFalseErr(t, result, err)
 }
 
+// 测试Struct类型
 func TestValueStruct(t *testing.T) {
 	var value ValueStructEntity
 	var result bool
@@ -91,6 +97,7 @@ func TestValueStruct(t *testing.T) {
 	assert.AssertFalseErr(t, result, err)
 }
 
+// 测试Map类型
 func TestValueMap(t *testing.T) {
 	var value ValueMapEntity
 	var result bool
@@ -105,4 +112,19 @@ func TestValueMap(t *testing.T) {
 	result, err = mikilin.Check(value, "InnerMap")
 	assert.AssertTrueErr(t, result, err)
 
+	// 测试 正常情况
+	value = ValueMapEntity{}
+	innerMap = make(map[string]ValueInnerEntity)
+	innerMap["a"] = ValueInnerEntity{Age: 2213}
+	value.InnerMap = innerMap
+	result, err = mikilin.Check(value, "InnerMap")
+	assert.AssertTrueErr(t, result, err)
+
+	// 测试 异常情况
+	value = ValueMapEntity{}
+	innerMap = make(map[string]ValueInnerEntity)
+	innerMap["a"] = ValueInnerEntity{Age: 2214}
+	value.InnerMap = innerMap
+	result, err = mikilin.Check(value, "InnerMap")
+	assert.AssertFalseErr(t, result, err)
 }

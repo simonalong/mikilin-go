@@ -65,7 +65,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 	}
 
 	// 搜集核查器
-	collectCollector(object)
+	collectCollector(objType, objValue)
 
 	ch := make(chan *CheckResult)
 	for index, num := 0, objType.NumField(); index < num; index++ {
@@ -111,7 +111,24 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 				return false, err
 			}
 		} else if fieldValue.Kind() == reflect.Map {
-			// todo
+			// map结构
+			if fieldValue.Len() == 0 {
+				continue
+			}
+
+			for mapR := fieldValue.MapRange(); mapR.Next(); {
+				mapKey := mapR.Key()
+				mapValue := mapR.Value()
+
+				result, err := Check(mapKey.Interface())
+				if !result {
+					return false, err
+				}
+				result, err = Check(mapValue.Interface())
+				if !result {
+					return false, err
+				}
+			}
 		} else if fieldValue.Kind() == reflect.Array {
 			// todo
 		} else if fieldValue.Kind() == reflect.Slice {
@@ -123,27 +140,31 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 }
 
 // 搜集核查器
-func collectCollector(object interface{}) {
-	objType := reflect.TypeOf(object)
-	objValue := reflect.ValueOf(object)
-	objectName := objType.Name()
+func collectCollector(objType reflect.Type, objValue reflect.Value) {
+	objectFullName := objType.String()
 
 	/* 搜集过则不再搜集 */
-	if _, contain := matcherMap[objectName]; contain {
+	if _, contain := matcherMap[objectFullName]; contain {
 		return
 	}
 
 	lock.Lock()
 	/* 搜集过则不再搜集 */
-	if _, contain := matcherMap[objectName]; contain {
+	if _, contain := matcherMap[objectFullName]; contain {
 		return
 	}
 
-	doCollectCollector(objType, objValue, objectName)
+	doCollectCollector(objType, objValue)
 	lock.Unlock()
 }
 
-func doCollectCollector(objType reflect.Type, objValue reflect.Value, objectName string) {
+func doCollectCollector(objType reflect.Type, objValue reflect.Value) {
+	// 基本类型不需要搜集
+	if isCheckedKing(objType.Kind()) {
+		return
+	}
+
+	objectFullName := objType.String()
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
 		fieldValue := objValue.Field(index)
@@ -165,8 +186,8 @@ func doCollectCollector(objType reflect.Type, objValue reflect.Value, objectName
 				continue
 			}
 
-			if _, contain := matcherMap[objectName][field.Name]; !contain {
-				collectChecker(objType.String(), fieldKind, field.Name, tagMatch)
+			if _, contain := matcherMap[objectFullName][field.Name]; !contain {
+				collectChecker(objectFullName, fieldKind, field.Name, tagMatch)
 			}
 		} else if fieldKind == reflect.Struct {
 			// struct 结构类型
@@ -175,12 +196,20 @@ func doCollectCollector(objType reflect.Type, objValue reflect.Value, objectName
 				continue
 			}
 
-			doCollectCollector(reflect.TypeOf(fieldValue.Interface()), reflect.ValueOf(fieldValue.Interface()), field.Name)
+			doCollectCollector(reflect.TypeOf(fieldValue.Interface()), reflect.ValueOf(fieldValue.Interface()))
 		} else if fieldKind == reflect.Map {
+			// map结构
 			if fieldValue.Len() == 0 {
 				continue
 			}
-			// todo
+
+			for mapR := fieldValue.MapRange(); mapR.Next(); {
+				mapKey := mapR.Key()
+				mapValue := mapR.Value()
+
+				doCollectCollector(reflect.TypeOf(mapKey.Interface()), reflect.ValueOf(mapKey.Interface()))
+				doCollectCollector(reflect.TypeOf(mapValue.Interface()), reflect.ValueOf(mapValue.Interface()))
+			}
 		} else if fieldKind == reflect.Array {
 			// todo
 		} else if fieldKind == reflect.Slice {
@@ -207,17 +236,17 @@ func isSelectField(fieldName string, fieldNames ...string) bool {
 	return false
 }
 
-func collectChecker(objectName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
+func collectChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
 	subCondition := strings.Split(matchJudge, ";")
 	for _, subStr := range subCondition {
 		subStr = strings.TrimSpace(subStr)
-		buildChecker(objectName, fieldKind, fieldName, subStr)
+		buildChecker(objectFullName, fieldKind, fieldName, subStr)
 	}
 }
 
-func buildChecker(objectName string, fieldKind reflect.Kind, fieldName string, subStr string) {
+func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, subStr string) {
 	for _, entity := range checkerEntities {
-		entity.infCollector(objectName, fieldKind, fieldName, subStr)
+		entity.infCollector(objectFullName, fieldKind, fieldName, subStr)
 	}
 }
 
@@ -312,14 +341,19 @@ func buildValuesMatcher(objectTypeName string, fieldKind reflect.Kind, objectFie
 		matchers = append(matchers, &valueMatch)
 
 		// 添加匹配器到map
-		fieldMatcher, contain := matcherMap[objectTypeName][objectFieldName]
-		if !contain {
-			matcherMap[objectTypeName] = make(map[string]FieldMatcher)
-			fieldMatcher = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
+		fieldMatcherMap, c1 := matcherMap[objectTypeName]
+		if !c1 {
+			fieldMap := make(map[string]FieldMatcher)
+			fieldMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
+			matcherMap[objectTypeName] = fieldMap
 		} else {
-			fieldMatcher.Matchers = append(fieldMatcher.Matchers, matchers...)
+			fieldMatcher, c2 := fieldMatcherMap[objectFieldName]
+			if !c2 {
+				fieldMatcherMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
+			} else {
+				fieldMatcher.Matchers = append(fieldMatcher.Matchers, matchers...)
+			}
 		}
-		matcherMap[objectTypeName][objectFieldName] = fieldMatcher
 	}
 }
 
