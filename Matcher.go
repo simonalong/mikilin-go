@@ -101,6 +101,10 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 				return false, checkResult.ErrMsg
 			}
 		} else if fieldValue.Kind() == reflect.Struct {
+			tagMatch := field.Tag.Get(MATCH)
+			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != CHECK) {
+				continue
+			}
 			result, err := Check(fieldValue.Interface())
 			if !result {
 				return false, err
@@ -155,15 +159,20 @@ func doCollectCollector(objType reflect.Type, objValue reflect.Value, objectName
 
 		// 基本类型
 		if isCheckedKing(fieldKind) {
-			tagJudge := field.Tag.Get(MATCH)
-			if len(tagJudge) == 0 {
+			tagMatch := field.Tag.Get(MATCH)
+			if len(tagMatch) == 0 {
 				continue
 			}
 
 			if _, contain := matcherMap[objectName][field.Name]; !contain {
-				collectChecker(objType.String(), fieldKind, field.Name, tagJudge)
+				collectChecker(objType.String(), fieldKind, field.Name, tagMatch)
 			}
 		} else if fieldKind == reflect.Struct {
+			tagMatch := field.Tag.Get(MATCH)
+			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != CHECK) {
+				continue
+			}
+
 			fieldType := reflect.TypeOf(fieldValue.Interface())
 			fieldValue := reflect.ValueOf(fieldValue.Interface())
 			fieldName := objType.Name()

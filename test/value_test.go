@@ -20,8 +20,8 @@ type ValueStructEntity struct {
 	Name string `match:"value={zhou, 宋江}"`
 	Age  int    `match:"value={12, 13}"`
 
-	InnerA ValueInnerEntity `check`
-	InnerB *ValueInnerEntity
+	InnerA ValueInnerEntity  `match:"check"`
+	InnerB *ValueInnerEntity `match:"check"`
 }
 
 func TestValueBase(t *testing.T) {
@@ -77,7 +77,9 @@ func TestValueStruct(t *testing.T) {
 	// 测试 异常情况
 	value = ValueStructEntity{InnerA: ValueInnerEntity{
 		Age: 2211,
+	}, InnerB: &ValueInnerEntity{
+		Age: 2214,
 	}}
-	result, err = mikilin.Check(value, "innerA")
+	result, err = mikilin.Check(value, "innerA", "innerB")
 	assert.AssertFalseErr(t, result, err)
 }
