@@ -298,7 +298,7 @@ func init() {
 
 	/* 搜集匹配器 */
 	checkerEntities = append(checkerEntities, CollectorEntity{VALUE, buildValuesMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{IS_NIL, buildIsNilMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{IS_NIL, buildIsNilMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
@@ -341,32 +341,31 @@ func buildValuesMatcher(objectTypeName string, fieldKind reflect.Kind, objectFie
 				availableValues = append(availableValues, chgValue)
 			} else {
 				log.Error(err.Error())
+				continue
 			}
 		}
-		valueMatch := matcher.ValueMatch{Values: availableValues}
-
-		var matchers []Matcher
-		matchers = append(matchers, &valueMatch)
-
-		// 添加匹配器到map
-		fieldMatcherMap, c1 := matcherMap[objectTypeName]
-		if !c1 {
-			fieldMap := make(map[string]FieldMatcher)
-			fieldMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
-			matcherMap[objectTypeName] = fieldMap
-		} else {
-			fieldMatcher, c2 := fieldMatcherMap[objectFieldName]
-			if !c2 {
-				fieldMatcherMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
-			} else {
-				fieldMatcher.Matchers = append(fieldMatcher.Matchers, matchers...)
-			}
-		}
+		addMatcher(objectTypeName, objectFieldName, &matcher.ValueMatch{Values: availableValues})
 	}
 }
 
-func buildIsNilMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildIsNilMatcher(objectTypeName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
+	if !strings.Contains(subCondition, IS_NIL) || !strings.Contains(subCondition, EQUAL) {
+		return
+	}
 
+	index := strings.Index(subCondition, "=")
+	value := subCondition[index+1:]
+
+	if strings.EqualFold("true", value) || strings.EqualFold("false", value) {
+		var isNil bool
+		if chgValue, err := strconv.ParseBool(value); err == nil {
+			isNil = chgValue
+		} else {
+			log.Error(err.Error())
+			return
+		}
+		addMatcher(objectTypeName, objectFieldName, &matcher.NilMatch{IsNil: isNil, HaveSet: 1})
+	}
 }
 
 func buildIsBlankMatcher(objectTypeName string, objectFieldName string, subCondition string) {
@@ -395,6 +394,30 @@ func buildRegexMatcher(objectTypeName string, objectFieldName string, subConditi
 
 func buildCustomizeMatcher(objectTypeName string, objectFieldName string, subCondition string) {
 
+}
+
+func addMatcher(objectTypeName string, objectFieldName string, matcher Matcher) {
+	// 添加匹配器到map
+	fieldMatcherMap, c1 := matcherMap[objectTypeName]
+	if !c1 {
+		fieldMap := make(map[string]FieldMatcher)
+
+		var matchers []Matcher
+		matchers = append(matchers, matcher)
+
+		fieldMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
+		matcherMap[objectTypeName] = fieldMap
+	} else {
+		fieldMatcher, c2 := fieldMatcherMap[objectFieldName]
+		if !c2 {
+			var matchers []Matcher
+			matchers = append(matchers, matcher)
+
+			fieldMatcherMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
+		} else {
+			fieldMatcher.Matchers = append(fieldMatcher.Matchers, matcher)
+		}
+	}
 }
 
 // 判断是否是核查的类型

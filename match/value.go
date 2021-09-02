@@ -25,11 +25,3 @@ func (valueMatch *ValueMatch) Match(object interface{}, field reflect.StructFiel
 func (valueMatch *ValueMatch) IsEmpty() bool {
 	return len(valueMatch.Values) == 0
 }
-
-func (valueMatch *ValueMatch) GetWhitMsg() string {
-	return valueMatch.WhiteMsg
-}
-
-func (valueMatch *ValueMatch) GetBlackMsg() string {
-	return valueMatch.BlackMsg
-}

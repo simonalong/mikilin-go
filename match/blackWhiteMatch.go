@@ -27,3 +27,11 @@ func (blackWhiteMatch *BlackWhiteMatch) SetWhite(format string, a ...interface{}
 	}
 	blackWhiteMatch.WhiteMsg = fmt.Sprintf("核查错误："+format, values...)
 }
+
+func (blackWhiteMatch *BlackWhiteMatch) GetWhitMsg() string {
+	return blackWhiteMatch.WhiteMsg
+}
+
+func (blackWhiteMatch *BlackWhiteMatch) GetBlackMsg() string {
+	return blackWhiteMatch.BlackMsg
+}
