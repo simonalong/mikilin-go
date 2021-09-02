@@ -57,8 +57,19 @@ type ValueMapValuePtrEntity struct {
 }
 
 type ValueArrayEntity struct {
-	Name [3]string `match:"value={zhou, 宋江}"`
-	Age  [3]int    `match:"value={12, 13}"`
+	Inner [3]ValueInnerEntity `match:"check"`
+}
+
+type ValueArrayPtrEntity struct {
+	Inner [3]*ValueInnerEntity `match:"check"`
+}
+
+type ValueSliceEntity struct {
+	Inner []ValueInnerEntity `match:"check"`
+}
+
+type ValueSlicePtrEntity struct {
+	Inner []*ValueInnerEntity `match:"check"`
 }
 
 // 测试基本类型
@@ -238,6 +249,11 @@ func TestValueMapValue(t *testing.T) {
 	var innerMap map[string]ValueInnerEntity
 
 	// 测试 正常情况
+	value = ValueMapValueEntity{Age: 12, Name: "宋江"}
+	result, err = mikilin.Check(value)
+	assert.TrueErr(t, result, err)
+
+	// 测试 正常情况
 	value = ValueMapValueEntity{}
 	innerMap = make(map[string]ValueInnerEntity)
 	innerMap["a"] = ValueInnerEntity{Age: 2212, Name: "inner_zhou"}
@@ -347,47 +363,106 @@ func TestValueArray(t *testing.T) {
 	var value ValueArrayEntity
 	var result bool
 	var err string
-	var ages [3]int
-	var names [3]string
+	innerArray := [3]ValueInnerEntity{}
 
 	// 正常
 	value = ValueArrayEntity{}
-	ages[0] = 12
-	ages[1] = 12
-	ages[2] = 13
-	value.Age = ages
+	innerArray[0] = ValueInnerEntity{Age: 2212, Name: "inner_zhou"}
+	innerArray[1] = ValueInnerEntity{Age: 2213, Name: "inner_zhou"}
+	innerArray[2] = ValueInnerEntity{Age: 2212, Name: "inner_宋江"}
+	value.Inner = innerArray
 
-	names[0] = "zhou"
-	names[1] = "zhou"
-	names[2] = "宋江"
-	value.Name = names
-
-	result, err = mikilin.Check(value)
+	result, err = mikilin.Check(value, "inner")
 	assert.TrueErr(t, result, err)
 
 	// 异常
 	value = ValueArrayEntity{}
-	ages[0] = 12
-	ages[1] = 14
-	ages[2] = 13
-	value.Age = ages
-
-	result, err = mikilin.Check(value, "age")
-	assert.TrueErr(t, result, err)
-
+	innerArray[0] = ValueInnerEntity{Age: 2212, Name: "inner_zhou"}
+	innerArray[1] = ValueInnerEntity{Age: 2213, Name: "inner_zhou"}
+	innerArray[2] = ValueInnerEntity{Age: 2214, Name: "inner_宋江"}
+	value.Inner = innerArray
+	result, err = mikilin.Check(value, "inner")
+	assert.Equal(t, "核查错误：属性 \"Age\" 的值 2214 不在只可用列表 [2212,2213] 中", err, false, result)
 }
 
 // 测试Array：指针类型
 func TestValueArrayPtr(t *testing.T) {
-	// todo
+	var value ValueArrayPtrEntity
+	var result bool
+	var err string
+	innerArray := [3]*ValueInnerEntity{}
+
+	// 正常
+	value = ValueArrayPtrEntity{}
+	innerArray[0] = &ValueInnerEntity{Age: 2212, Name: "inner_zhou"}
+	innerArray[1] = &ValueInnerEntity{Age: 2213, Name: "inner_zhou"}
+	innerArray[2] = &ValueInnerEntity{Age: 2212, Name: "inner_宋江"}
+	value.Inner = innerArray
+
+	result, err = mikilin.Check(value, "inner")
+	assert.TrueErr(t, result, err)
+
+	// 异常
+	value = ValueArrayPtrEntity{}
+	innerArray[0] = &ValueInnerEntity{Age: 2212, Name: "inner_zhou"}
+	innerArray[1] = &ValueInnerEntity{Age: 2213, Name: "inner_zhou"}
+	innerArray[2] = &ValueInnerEntity{Age: 2214, Name: "inner_宋江"}
+	value.Inner = innerArray
+	result, err = mikilin.Check(value, "inner")
+	assert.Equal(t, "核查错误：属性 \"Age\" 的值 2214 不在只可用列表 [2212,2213] 中", err, false, result)
 }
 
 // 测试 Slice
 func TestValueSlice(t *testing.T) {
-	// todo
+	var value ValueSliceEntity
+	var result bool
+	var err string
+	innerSlice := []ValueInnerEntity{}
+
+	// 正常
+	value = ValueSliceEntity{}
+	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2212, Name: "inner_zhou"})
+	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2213, Name: "inner_宋江"})
+	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2212, Name: "inner_宋江"})
+	value.Inner = innerSlice
+
+	result, err = mikilin.Check(value, "inner")
+	assert.TrueErr(t, result, err)
+
+	// 异常
+	value = ValueSliceEntity{}
+	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2212, Name: "inner_zhou"})
+	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2213, Name: "inner_zhou"})
+	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2214, Name: "inner_宋江"})
+	value.Inner = innerSlice
+
+	result, err = mikilin.Check(value, "inner")
+	assert.Equal(t, "核查错误：属性 \"Age\" 的值 2214 不在只可用列表 [2212,2213] 中", err, false, result)
 }
 
 // 测试 Slice：指针类型
 func TestValueSlicePtr(t *testing.T) {
-	// todo
+	var value ValueSlicePtrEntity
+	var result bool
+	var err string
+	innerSlice := []*ValueInnerEntity{}
+
+	// 正常
+	value = ValueSlicePtrEntity{}
+	innerSlice = append(innerSlice, &ValueInnerEntity{Age: 2212, Name: "inner_zhou"})
+	innerSlice = append(innerSlice, &ValueInnerEntity{Age: 2213, Name: "inner_zhou"})
+	innerSlice = append(innerSlice, &ValueInnerEntity{Age: 2212, Name: "inner_宋江"})
+	value.Inner = innerSlice
+
+	result, err = mikilin.Check(value, "inner")
+	assert.TrueErr(t, result, err)
+
+	// 异常
+	value = ValueSlicePtrEntity{}
+	innerSlice = append(innerSlice, &ValueInnerEntity{Age: 2212, Name: "inner_zhou"})
+	innerSlice = append(innerSlice, &ValueInnerEntity{Age: 2213, Name: "inner_zhou"})
+	innerSlice = append(innerSlice, &ValueInnerEntity{Age: 2214, Name: "inner_宋江"})
+	value.Inner = innerSlice
+	result, err = mikilin.Check(value, "inner")
+	assert.Equal(t, "核查错误：属性 \"Age\" 的值 2214 不在只可用列表 [2212,2213] 中", err, false, result)
 }

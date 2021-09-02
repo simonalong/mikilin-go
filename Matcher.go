@@ -53,11 +53,14 @@ var checkerEntities []CollectorEntity
 var matcherMap = make(map[string]map[string]FieldMatcher)
 
 func Check(object interface{}, fieldNames ...string) (bool, string) {
+	if object == nil {
+		return true, ""
+	}
 	objType := reflect.TypeOf(object)
 	objValue := reflect.ValueOf(object)
 
 	// 指针类型按照指针类型
-	if objValue.Kind() == reflect.Ptr {
+	if objType.Kind() == reflect.Ptr {
 		objValue = objValue.Elem()
 		return Check(objValue.Interface(), fieldNames...)
 	}
@@ -67,7 +70,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 	}
 
 	// 搜集核查器
-	collectCollector(objType, objValue)
+	collectCollector(objType)
 
 	ch := make(chan *CheckResult)
 	for index, num := 0, objType.NumField(); index < num; index++ {
@@ -131,10 +134,16 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 					return false, err
 				}
 			}
-		} else if fieldValue.Kind() == reflect.Array {
-			// todo
-		} else if fieldValue.Kind() == reflect.Slice {
-			// todo
+		} else if fieldValue.Kind() == reflect.Array || fieldValue.Kind() == reflect.Slice {
+			// Array|Slice 结构
+			arrayLen := fieldValue.Len()
+			for arrayIndex := 0; arrayIndex < arrayLen; arrayIndex++ {
+				fieldValueItem := fieldValue.Index(arrayIndex)
+				result, err := Check(fieldValueItem.Interface())
+				if !result {
+					return false, err
+				}
+			}
 		}
 	}
 	close(ch)
@@ -142,7 +151,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 }
 
 // 搜集核查器
-func collectCollector(objType reflect.Type, objValue reflect.Value) {
+func collectCollector(objType reflect.Type) {
 	objectFullName := objType.String()
 
 	/* 搜集过则不再搜集 */
@@ -156,28 +165,26 @@ func collectCollector(objType reflect.Type, objValue reflect.Value) {
 		return
 	}
 
-	doCollectCollector(objType, objValue)
+	doCollectCollector(objType)
 	lock.Unlock()
 }
 
-func doCollectCollector(objType reflect.Type, objValue reflect.Value) {
+func doCollectCollector(objType reflect.Type) {
 	// 基本类型不需要搜集
 	if isCheckedKing(objType.Kind()) {
 		return
 	}
 
 	// 指针类型按照指针类型
-	if objValue.Kind() == reflect.Ptr {
-		objValue = objValue.Elem()
-		doCollectCollector(objType.Elem(), objValue)
+	if objType.Kind() == reflect.Ptr {
+		doCollectCollector(objType.Elem())
 		return
 	}
 
 	objectFullName := objType.String()
-	for index, num := 0, objType.NumField(); index < num; index++ {
-		field := objType.Field(index)
-		fieldValue := objValue.Field(index)
-		fieldKind := fieldValue.Kind()
+	for fieldIndex, num := 0, objType.NumField(); fieldIndex < num; fieldIndex++ {
+		field := objType.Field(fieldIndex)
+		fieldKind := field.Type.Kind()
 
 		// 不可访问字段不处理
 		if !isStartUpper(field.Name) {
@@ -205,24 +212,16 @@ func doCollectCollector(objType reflect.Type, objValue reflect.Value) {
 				continue
 			}
 
-			doCollectCollector(reflect.TypeOf(fieldValue.Interface()), reflect.ValueOf(fieldValue.Interface()))
+			doCollectCollector(field.Type)
 		} else if fieldKind == reflect.Map {
-			// map结构
-			if fieldValue.Len() == 0 {
-				continue
-			}
-
-			for mapR := fieldValue.MapRange(); mapR.Next(); {
-				mapKey := mapR.Key()
-				mapValue := mapR.Value()
-
-				doCollectCollector(reflect.TypeOf(mapKey.Interface()), reflect.ValueOf(mapKey.Interface()))
-				doCollectCollector(reflect.TypeOf(mapValue.Interface()), reflect.ValueOf(mapValue.Interface()))
-			}
-		} else if fieldKind == reflect.Array {
-			// todo
-		} else if fieldKind == reflect.Slice {
-			// todo
+			// Map 结构
+			doCollectCollector(field.Type.Key())
+			doCollectCollector(field.Type.Elem())
+		} else if fieldKind == reflect.Array || fieldKind == reflect.Slice {
+			// Array|Slice 结构
+			doCollectCollector(field.Type.Elem())
+		} else {
+			// Uintptr 类型不处理
 		}
 	}
 }
@@ -434,12 +433,6 @@ func isCheckedKing(fieldKing reflect.Kind) bool {
 	}
 }
 
-func isMapKing(fieldKind reflect.Kind) {
-	if fieldKind == reflect.Struct {
-
-	}
-}
-
 func cast(fieldKind reflect.Kind, valueStr string) (interface{}, error) {
 	switch fieldKind {
 	case reflect.Int:
@@ -469,6 +462,5 @@ func cast(fieldKind reflect.Kind, valueStr string) (interface{}, error) {
 	case reflect.Bool:
 		return strconv.ParseBool(valueStr)
 	}
-
 	return valueStr, nil
 }
