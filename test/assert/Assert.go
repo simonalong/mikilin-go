@@ -23,5 +23,7 @@ func AssertFalse(t *testing.T, value bool) {
 func AssertFalseErr(t *testing.T, value bool, errMsg string) {
 	if value {
 		t.Errorf("expect false, but actual is true, error: %v", errMsg)
+	} else {
+		t.Logf("error: %v", errMsg)
 	}
 }

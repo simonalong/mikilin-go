@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 var lock sync.Mutex
@@ -71,7 +72,13 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 		field := objType.Field(index)
 		fieldValue := objValue.Field(index)
 
-		if !inArray(field.Name, fieldNames...) {
+		// 私有字段不处理
+		if !isStartUpper(field.Name) {
+			continue
+		}
+
+		// 过滤选择的列
+		if !isSelectField(field.Name, fieldNames...) {
 			continue
 		}
 
@@ -94,7 +101,10 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 				return false, checkResult.ErrMsg
 			}
 		} else if fieldValue.Kind() == reflect.Struct {
-			fieldValue.NumField()
+			result, err := Check(fieldValue.Interface())
+			if !result {
+				return false, err
+			}
 		} else if fieldValue.Kind() == reflect.Map {
 			// todo
 		} else if fieldValue.Kind() == reflect.Array {
@@ -124,10 +134,20 @@ func collectCollector(object interface{}) {
 		return
 	}
 
+	doCollectCollector(objType, objValue, objectName)
+	lock.Unlock()
+}
+
+func doCollectCollector(objType reflect.Type, objValue reflect.Value, objectName string) {
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
 		fieldValue := objValue.Field(index)
 		fieldKind := fieldValue.Kind()
+
+		// 不可访问字段不处理
+		if !isStartUpper(field.Name) {
+			continue
+		}
 
 		if fieldKind == reflect.Ptr && !fieldValue.IsNil() {
 			fieldValue = fieldValue.Elem()
@@ -144,10 +164,10 @@ func collectCollector(object interface{}) {
 				collectChecker(objType.String(), fieldKind, field.Name, tagJudge)
 			}
 		} else if fieldKind == reflect.Struct {
-			for index, num := 0, fieldValue.NumField(); index < num; index++ {
-				// todo 这里因为属性为小写，因此不能进行访问，这里要进行过滤处理
-				collectCollector(fieldValue.Interface())
-			}
+			fieldType := reflect.TypeOf(fieldValue.Interface())
+			fieldValue := reflect.ValueOf(fieldValue.Interface())
+			fieldName := objType.Name()
+			doCollectCollector(fieldType, fieldValue, fieldName)
 		} else if fieldKind == reflect.Map {
 			// todo
 		} else if fieldKind == reflect.Array {
@@ -156,15 +176,20 @@ func collectCollector(object interface{}) {
 			// todo
 		}
 	}
-
-	lock.Unlock()
 }
 
-func inArray(fieldName string, fieldNames ...string) bool {
+// 判断首字母是否大写
+func isStartUpper(s string) bool {
+	return unicode.IsUpper([]rune(s)[0])
+}
+
+// 是否是选择的列，没有选择也认为是选择的
+func isSelectField(fieldName string, fieldNames ...string) bool {
+	if len(fieldNames) == 0 {
+		return true
+	}
 	for _, name := range fieldNames {
-		name = strings.ToUpper(name[:1]) + name[1:]
-		fieldName = strings.ToUpper(fieldName[:1]) + fieldName[1:]
-		if name == fieldName {
+		if strings.EqualFold(name, fieldName) {
 			return true
 		}
 	}
