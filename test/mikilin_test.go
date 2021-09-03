@@ -34,7 +34,7 @@ func TestMkBase1(t *testing.T) {
 	// 测试 异常情况
 	value = MikilinBaseEntity{Age: 13, Name: "陈真"}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, "[\"核查错误：属性 \\\"Name\\\" 的值 \\\"陈真\\\" 不在只可用列表 [\\\"zhou\\\",\\\"宋江\\\"] 中\",\"核查错误：属性 \\\"Name\\\" 的值为非空字符\"]", err, result, false)
+	assert.Equal(t, "[\"核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中\",\"核查错误：属性 Name 的值为非空字符\"]", err, result, false)
 }
 
 func TestMkBase2(t *testing.T) {
@@ -55,5 +55,5 @@ func TestMkBase2(t *testing.T) {
 	// 测试 异常情况
 	value = MikilinBaseEntity2{Age: 13, Name: "陈真"}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, "[\"核查错误：属性 \\\"Name\\\" 的值 \\\"陈真\\\" 不在只可用列表 [\\\"zhou\\\",\\\"宋江\\\"] 中\",\"核查错误：属性 \\\"Name\\\" 的值为非空字符\"]", err, result, false)
+	assert.Equal(t, "[\"核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中\",\"核查错误：属性 Name 的值为非空字符\"]", err, result, false)
 }

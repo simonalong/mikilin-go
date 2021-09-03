@@ -31,7 +31,7 @@ func TestIsBlankBase(t *testing.T) {
 	// 测试 正常情况
 	value = IsBlankBaseEntity{Age: 13}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, "核查错误：属性 \"Name\" 的值不为空", err, result, false)
+	assert.Equal(t, "核查错误：属性 Name 的值为空字符", err, result, false)
 }
 
 // 测试基本类型：简化版
@@ -48,5 +48,5 @@ func TestIsBlankBaseSimple(t *testing.T) {
 	// 测试 正常情况
 	value = IsBlankBaseSimpleEntity{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, "核查错误：属性 \"Name\" 的值为空字符", err, result, false)
+	assert.Equal(t, "核查错误：属性 Name 的值为非空字符", err, result, false)
 }

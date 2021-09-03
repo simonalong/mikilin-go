@@ -80,17 +80,17 @@ type RangeTimeCalEntity struct {
 
 // 测试基本类型
 func TestRangeBase(t *testing.T) {
-	var value IsBlankBaseEntity
+	var value RangeIntEntity1
 	var result bool
 	var err string
 
 	//测试 正常情况
-	value = IsBlankBaseEntity{Name: "zhou"}
+	value = RangeIntEntity1{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
 	assert.TrueErr(t, result, err)
 
-	// 测试 正常情况
-	value = IsBlankBaseEntity{Age: 13}
+	// 测试 异常情况
+	value = RangeIntEntity1{Age: 13}
 	result, err = mikilin.Check(value, "name")
 	assert.Equal(t, "核查错误：属性 \"Name\" 的值不为空", err, result, false)
 }

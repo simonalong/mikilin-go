@@ -14,11 +14,11 @@ func (valueMatch *ValueMatch) Match(object interface{}, field reflect.StructFiel
 
 	for _, value := range values {
 		if value == fieldValue {
-			valueMatch.SetBlack("属性 %v 的值 %v 位于禁用值 %v 中", field.Name, fieldValue, values)
+			valueMatch.SetBlackString("属性 %v 的值 %v 位于禁用值 %v 中", field.Name, fieldValue, values)
 			return true
 		}
 	}
-	valueMatch.SetWhite("属性 %v 的值 %v 不在只可用列表 %v 中", field.Name, fieldValue, values)
+	valueMatch.SetWhiteString("属性 %v 的值 %v 不在只可用列表 %v 中", field.Name, fieldValue, values)
 	return false
 }
 

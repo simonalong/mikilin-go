@@ -5,6 +5,7 @@ import (
 	"github.com/SimonAlong/Mikilin-go/util"
 	log "github.com/sirupsen/logrus"
 	"reflect"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -353,7 +354,7 @@ func init() {
 	//checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{CONDITION, buildConditionMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{CUSTOMIZE, buildCustomizeMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{REGEX, buildRegexMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{REGEX, buildRegexMatcher})
 }
 
 func collectErrMsg(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
@@ -428,26 +429,7 @@ func buildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, obje
 }
 
 func buildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
-	if !strings.Contains(subCondition, IsBlank) {
-		return
-	}
-
-	value := "true"
-	if strings.Contains(subCondition, EQUAL) {
-		index := strings.Index(subCondition, "=")
-		value = strings.TrimSpace(subCondition[index+1:])
-	}
-
-	if strings.EqualFold("true", value) || strings.EqualFold("false", value) {
-		var isBlank bool
-		if chgValue, err := strconv.ParseBool(value); err == nil {
-			isBlank = chgValue
-		} else {
-			log.Error(err.Error())
-			return
-		}
-		addMatcher(objectTypeFullName, objectFieldName, &matcher.IsBlankMatch{IsBlank: isBlank, HaveSet: 1})
-	}
+	// todo
 }
 
 func buildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
@@ -463,7 +445,18 @@ func buildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 }
 
 func buildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
+	if !strings.Contains(subCondition, REGEX) || !strings.Contains(subCondition, EQUAL) {
+		return
+	}
 
+	index := strings.Index(subCondition, "=")
+	value := subCondition[index+1:]
+
+	reg, err := regexp.Compile(value)
+	if err != nil {
+		return
+	}
+	addMatcher(objectTypeFullName, objectFieldName, &matcher.RegexMatch{Reg: reg})
 }
 
 func buildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
