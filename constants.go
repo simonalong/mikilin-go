@@ -1,7 +1,7 @@
 package mikilin
 
 const (
-	// VALUE 值列表
+	// EQUAL 值列表
 	EQUAL = "="
 	// VALUE 值列表
 	VALUE = "value"
