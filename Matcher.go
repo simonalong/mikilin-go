@@ -55,7 +55,7 @@ var checkerEntities []CollectorEntity
 var matcherMap = make(map[string]map[string]*FieldMatcher)
 
 /* 核查的标签 */
-var matchTagArray = []string{VALUE, IS_BLANK, RANGE, MODEL, CONDITION, REGEX, CUSTOMIZE}
+var matchTagArray = []string{VALUE, IsBlank, RANGE, MODEL, CONDITION, REGEX, CUSTOMIZE}
 
 /* 匹配后处理的标签 */
 var handleTagArray = []string{ERR_MSG, CHANGE_TO, ACCEPT, DISABLE}
@@ -347,7 +347,7 @@ func init() {
 
 	/* 搜集匹配器 */
 	checkerEntities = append(checkerEntities, CollectorEntity{VALUE, buildValuesMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{IsBlank, buildIsBlankMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
@@ -405,7 +405,7 @@ func buildValuesMatcher(objectTypeFullName string, fieldKind reflect.Kind, objec
 }
 
 func buildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
-	if !strings.Contains(subCondition, IS_BLANK) {
+	if !strings.Contains(subCondition, IsBlank) {
 		return
 	}
 
@@ -428,7 +428,26 @@ func buildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, obje
 }
 
 func buildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
+	if !strings.Contains(subCondition, IsBlank) {
+		return
+	}
 
+	value := "true"
+	if strings.Contains(subCondition, EQUAL) {
+		index := strings.Index(subCondition, "=")
+		value = strings.TrimSpace(subCondition[index+1:])
+	}
+
+	if strings.EqualFold("true", value) || strings.EqualFold("false", value) {
+		var isBlank bool
+		if chgValue, err := strconv.ParseBool(value); err == nil {
+			isBlank = chgValue
+		} else {
+			log.Error(err.Error())
+			return
+		}
+		addMatcher(objectTypeFullName, objectFieldName, &matcher.IsBlankMatch{IsBlank: isBlank, HaveSet: 1})
+	}
 }
 
 func buildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {

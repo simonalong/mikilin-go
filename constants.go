@@ -5,11 +5,11 @@ const (
 	EQUAL = "="
 	// VALUE 值列表
 	VALUE = "value"
-	// IS_BLANK 字符为空匹配
-	IS_BLANK = "isBlank"
-	// 范围匹配
+	// IsBlank 字符为空匹配
+	IsBlank = "isBlank"
+	// RANGE 范围匹配
 	RANGE = "range"
-	// 模式类型匹配
+	// MODEL 模式类型匹配
 	MODEL     = "model"
 	CONDITION = "condition"
 	REGEX     = "regex"
