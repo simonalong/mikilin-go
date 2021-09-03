@@ -57,3 +57,10 @@ func TestMkBase2(t *testing.T) {
 	result, err = mikilin.Check(value)
 	assert.Equal(t, "[\"核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中\",\"核查错误：属性 Name 的值为非空字符\"]", err, result, false)
 }
+
+// 压测进行基准测试
+func BenchmarkMkBase3(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		mikilin.Check(MikilinBaseEntity{Age: 12})
+	}
+}
