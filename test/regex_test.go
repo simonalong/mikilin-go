@@ -21,8 +21,13 @@ func TestRegex(t *testing.T) {
 	result, err = mikilin.Check(value, "name")
 	assert.TrueErr(t, result, err)
 
-	//// 测试 正常情况
+	// 测试 正常情况
 	value = ValueRegexEntity{Age: 13}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, "核查错误：属性 Age 的值 13 不是String类型", err, result, false)
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = ValueRegexEntity{Name: "chenzhen"}
+	result, err = mikilin.Check(value, "name")
+	assert.Equal(t, "核查错误：属性 Name 的值 chenzhen 没命中只允许的正则表达式 ^zhou.*zhen$ ", err, result, false)
 }
