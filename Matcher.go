@@ -2,8 +2,10 @@ package mikilin
 
 import (
 	matcher "github.com/SimonAlong/Mikilin-go/match"
+	"github.com/SimonAlong/Mikilin-go/util"
 	log "github.com/sirupsen/logrus"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -32,7 +34,7 @@ type FieldMatcher struct {
 	// 待转换的名字
 	changeTo string
 	// 匹配器列表
-	Matchers []Matcher
+	Matchers []*Matcher
 }
 
 type InfoCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string)
@@ -50,7 +52,13 @@ type CheckResult struct {
 var checkerEntities []CollectorEntity
 
 /* key：类全名，value：key：属性名 */
-var matcherMap = make(map[string]map[string]FieldMatcher)
+var matcherMap = make(map[string]map[string]*FieldMatcher)
+
+/* 核查的标签 */
+var matchTagArray = []string{VALUE, IS_BLANK, RANGE, MODEL, CONDITION, REGEX, CUSTOMIZE}
+
+/* 匹配后处理的标签 */
+var handleTagArray = []string{ERR_MSG, CHANGE_TO, ACCEPT, DISABLE}
 
 func Check(object interface{}, fieldNames ...string) (bool, string) {
 	if object == nil {
@@ -244,12 +252,31 @@ func isSelectField(fieldName string, fieldNames ...string) bool {
 	return false
 }
 
+// 搜集处理器，对于有一些空格的也进行单独处理
 func collectChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
-	subCondition := strings.Split(matchJudge, ";")
-	for _, subStr := range subCondition {
-		subStr = strings.TrimSpace(subStr)
-		buildChecker(objectFullName, fieldKind, fieldName, subStr)
+	var subStrIndexes []int
+	for _, tag := range matchTagArray {
+		index := strings.Index(matchJudge, tag)
+		if index != -1 {
+			subStrIndexes = append(subStrIndexes, index)
+		}
 	}
+	sort.Ints(subStrIndexes)
+
+	lastIndex := 0
+	for _, subIndex := range subStrIndexes {
+		if lastIndex == subIndex {
+			continue
+		}
+		subJudgeStr := matchJudge[lastIndex:subIndex]
+		subJudgeStr = strings.Replace(subJudgeStr, " ", "", -1)
+		buildChecker(objectFullName, fieldKind, fieldName, subJudgeStr)
+		lastIndex = subIndex
+	}
+
+	subJudgeStr := matchJudge[lastIndex:]
+	subJudgeStr = strings.Replace(subJudgeStr, " ", "", -1)
+	buildChecker(objectFullName, fieldKind, fieldName, subJudgeStr)
 }
 
 func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, subStr string) {
@@ -260,32 +287,54 @@ func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName strin
 
 func check(object interface{}, field reflect.StructField, fieldValue interface{}, ch chan *CheckResult) {
 	objectType := reflect.TypeOf(object)
+
 	if fieldMatcher, contain := matcherMap[objectType.String()][field.Name]; contain {
 		accept := fieldMatcher.accept
 		matchers := fieldMatcher.Matchers
-		for _, match := range matchers {
-			if match.IsEmpty() {
-				continue
-			}
 
-			matchResult := match.Match(object, field, fieldValue)
-			if accept {
-				if !matchResult {
-					// 白名单，没有匹配上则返回false
-					ch <- &CheckResult{Result: false, ErrMsg: match.GetWhitMsg()}
-					return
-				}
-			} else {
-				if matchResult {
-					// 黑名单，匹配上则返回false
-					ch <- &CheckResult{Result: false, ErrMsg: match.GetBlackMsg()}
-					return
-				}
+		// 黑名单，而且匹配到，则核查失败
+		if !accept {
+			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); matchResult {
+				ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				return
+			}
+		}
+
+		// 白名单，没有匹配到，则核查失败
+		if accept {
+			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); !matchResult {
+				ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				return
 			}
 		}
 	}
 	ch <- &CheckResult{Result: true}
 	return
+}
+
+// 任何一个匹配上，则返回true，都没有匹配上则返回false
+func judgeMatch(matchers []*Matcher, object interface{}, field reflect.StructField, fieldValue interface{}, accept bool) (bool, string) {
+	var errMsgArray []string
+	for _, match := range matchers {
+		if (*match).IsEmpty() {
+			continue
+		}
+
+		matchResult := (*match).Match(object, field, fieldValue)
+		if matchResult {
+			if !accept {
+				errMsgArray = append(errMsgArray, (*match).GetWhitMsg())
+			} else {
+				errMsgArray = []string{}
+			}
+			return true, ""
+		} else {
+			if accept {
+				errMsgArray = append(errMsgArray, (*match).GetWhitMsg())
+			}
+		}
+	}
+	return false, util.ArraysToString(errMsgArray)
 }
 
 // 包的初始回调
@@ -406,22 +455,22 @@ func addMatcher(objectTypeFullName string, objectFieldName string, matcher Match
 	// 添加匹配器到map
 	fieldMatcherMap, c1 := matcherMap[objectTypeFullName]
 	if !c1 {
-		fieldMap := make(map[string]FieldMatcher)
+		fieldMap := make(map[string]*FieldMatcher)
 
-		var matchers []Matcher
-		matchers = append(matchers, matcher)
+		var matchers []*Matcher
+		matchers = append(matchers, &matcher)
 
-		fieldMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
+		fieldMap[objectFieldName] = &FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
 		matcherMap[objectTypeFullName] = fieldMap
 	} else {
 		fieldMatcher, c2 := fieldMatcherMap[objectFieldName]
 		if !c2 {
-			var matchers []Matcher
-			matchers = append(matchers, matcher)
+			var matchers []*Matcher
+			matchers = append(matchers, &matcher)
 
-			fieldMatcherMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
+			fieldMatcherMap[objectFieldName] = &FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
 		} else {
-			fieldMatcher.Matchers = append(fieldMatcher.Matchers, matcher)
+			fieldMatcher.Matchers = append(fieldMatcher.Matchers, &matcher)
 		}
 	}
 }

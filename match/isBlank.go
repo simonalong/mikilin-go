@@ -20,18 +20,18 @@ func (isBlankMatch *IsBlankMatch) Match(object interface{}, field reflect.Struct
 
 	if isBlankMatch.IsBlank {
 		if fieldValue == "" {
-			isBlankMatch.SetBlack("属性 %v 的值为非空字符", field.Name)
+			isBlankMatch.SetBlack("属性 %v 的值为空字符", field.Name)
 			return true
 		} else {
-			isBlankMatch.SetWhite("属性 %v 的值为空字符", field.Name)
+			isBlankMatch.SetWhite("属性 %v 的值为非空字符", field.Name)
 			return false
 		}
 	} else {
 		if fieldValue != "" {
-			isBlankMatch.SetBlack("属性 %v 的值为空字符", field.Name)
+			isBlankMatch.SetBlack("属性 %v 的值不为空", field.Name)
 			return true
 		} else {
-			isBlankMatch.SetWhite("属性 %v 的值不为空", field.Name)
+			isBlankMatch.SetWhite("属性 %v 的值为空字符", field.Name)
 			return false
 		}
 	}
