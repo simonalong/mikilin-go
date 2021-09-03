@@ -85,12 +85,7 @@ func TestRangeBase(t *testing.T) {
 	var err string
 
 	//测试 正常情况
-	value = RangeIntEntity1{Name: "zhou"}
-	result, err = mikilin.Check(value, "name")
+	value = RangeIntEntity1{Age: 1}
+	result, err = mikilin.Check(value, "age")
 	assert.TrueErr(t, result, err)
-
-	// 测试 异常情况
-	value = RangeIntEntity1{Age: 13}
-	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, "核查错误：属性 \"Name\" 的值不为空", err, result, false)
 }
