@@ -11,6 +11,11 @@ type ValueBaseEntity struct {
 	Age  int    `match:"value={12, 13}"`
 }
 
+type ValueBaseEntityOne struct {
+	Name string `match:"value={zhou, 宋江}"`
+	Age  int    `match:"value=12"`
+}
+
 type ValueBasePtrEntity struct {
 	Name *string `match:"value={zhou, 宋江}"`
 	Age  *int    `match:"value={12, 13}"`
@@ -72,7 +77,24 @@ type ValueSlicePtrEntity struct {
 	Inner []*ValueInnerEntity `match:"check"`
 }
 
-// 测试基本类型
+// 测试基本类型：一个值的情况
+func TestValueBase2(t *testing.T) {
+	var value ValueBaseEntityOne
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = ValueBaseEntityOne{Age: 12}
+	result, err = mikilin.Check(value, "age")
+	assert.TrueErr(t, result, err)
+
+	// 测试 正常情况
+	value = ValueBaseEntityOne{Age: 13}
+	result, err = mikilin.Check(value, "age")
+	assert.Equal(t, "核查错误：属性 \"Age\" 的值 13 不在只可用列表 [12] 中", err, result, false)
+}
+
+// 测试基本类型：多个值的情况
 func TestValueBase(t *testing.T) {
 	var value ValueBaseEntity
 	var result bool

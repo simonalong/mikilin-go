@@ -35,7 +35,7 @@ type FieldMatcher struct {
 	Matchers []Matcher
 }
 
-type InfoCollector func(objectTypeName string, fieldKind reflect.Kind, objectFieldName string, subCondition string)
+type InfoCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string)
 
 type CollectorEntity struct {
 	name         string
@@ -298,8 +298,7 @@ func init() {
 
 	/* 搜集匹配器 */
 	checkerEntities = append(checkerEntities, CollectorEntity{VALUE, buildValuesMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{IS_NIL, buildIsNilMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
@@ -308,23 +307,23 @@ func init() {
 	//checkerEntities = append(checkerEntities, CollectorEntity{REGEX, buildRegexMatcher})
 }
 
-func collectErrMsg(objectTypeName string, objectFieldName string, subCondition string) {
+func collectErrMsg(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func collectChangeTo(objectTypeName string, objectFieldName string, subCondition string) {
+func collectChangeTo(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func collectAccept(objectTypeName string, objectFieldName string, subCondition string) {
+func collectAccept(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func collectDisable(objectTypeName string, objectFieldName string, subCondition string) {
+func collectDisable(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func buildValuesMatcher(objectTypeName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
+func buildValuesMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 	if !strings.Contains(subCondition, VALUE) || !strings.Contains(subCondition, EQUAL) {
 		return
 	}
@@ -332,9 +331,9 @@ func buildValuesMatcher(objectTypeName string, fieldKind reflect.Kind, objectFie
 	index := strings.Index(subCondition, "=")
 	value := subCondition[index+1:]
 
+	var availableValues []interface{}
 	if strings.HasPrefix(value, "{") && strings.HasSuffix(value, "}") {
 		value = value[1 : len(value)-1]
-		var availableValues []interface{}
 		for _, subValue := range strings.Split(value, ",") {
 			subValue = strings.TrimSpace(subValue)
 			if chgValue, err := cast(fieldKind, subValue); err == nil {
@@ -344,61 +343,68 @@ func buildValuesMatcher(objectTypeName string, fieldKind reflect.Kind, objectFie
 				continue
 			}
 		}
-		addMatcher(objectTypeName, objectFieldName, &matcher.ValueMatch{Values: availableValues})
-	}
-}
-
-func buildIsNilMatcher(objectTypeName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
-	if !strings.Contains(subCondition, IS_NIL) || !strings.Contains(subCondition, EQUAL) {
-		return
-	}
-
-	index := strings.Index(subCondition, "=")
-	value := subCondition[index+1:]
-
-	if strings.EqualFold("true", value) || strings.EqualFold("false", value) {
-		var isNil bool
-		if chgValue, err := strconv.ParseBool(value); err == nil {
-			isNil = chgValue
+	} else {
+		value = strings.TrimSpace(value)
+		if chgValue, err := cast(fieldKind, value); err == nil {
+			availableValues = append(availableValues, chgValue)
 		} else {
 			log.Error(err.Error())
 			return
 		}
-		addMatcher(objectTypeName, objectFieldName, &matcher.NilMatch{IsNil: isNil, HaveSet: 1})
+	}
+	addMatcher(objectTypeFullName, objectFieldName, &matcher.ValueMatch{Values: availableValues})
+}
+
+func buildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
+	if !strings.Contains(subCondition, IS_BLANK) {
+		return
+	}
+
+	value := "true"
+	if strings.Contains(subCondition, EQUAL) {
+		index := strings.Index(subCondition, "=")
+		value = strings.TrimSpace(subCondition[index+1:])
+	}
+
+	if strings.EqualFold("true", value) || strings.EqualFold("false", value) {
+		var isBlank bool
+		if chgValue, err := strconv.ParseBool(value); err == nil {
+			isBlank = chgValue
+		} else {
+			log.Error(err.Error())
+			return
+		}
+		addMatcher(objectTypeFullName, objectFieldName, &matcher.IsBlankMatch{IsBlank: isBlank, HaveSet: 1})
 	}
 }
 
-func buildIsBlankMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildRangeMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func buildRangeMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildModelMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func buildModelMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildEnumTypeMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func buildEnumTypeMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildConditionMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func buildConditionMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildRegexMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func buildRegexMatcher(objectTypeName string, objectFieldName string, subCondition string) {
+func buildCustomizeMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
 
 }
 
-func buildCustomizeMatcher(objectTypeName string, objectFieldName string, subCondition string) {
-
-}
-
-func addMatcher(objectTypeName string, objectFieldName string, matcher Matcher) {
+func addMatcher(objectTypeFullName string, objectFieldName string, matcher Matcher) {
 	// 添加匹配器到map
-	fieldMatcherMap, c1 := matcherMap[objectTypeName]
+	fieldMatcherMap, c1 := matcherMap[objectTypeFullName]
 	if !c1 {
 		fieldMap := make(map[string]FieldMatcher)
 
@@ -406,7 +412,7 @@ func addMatcher(objectTypeName string, objectFieldName string, matcher Matcher) 
 		matchers = append(matchers, matcher)
 
 		fieldMap[objectFieldName] = FieldMatcher{fieldName: objectFieldName, Matchers: matchers, accept: true}
-		matcherMap[objectTypeName] = fieldMap
+		matcherMap[objectTypeFullName] = fieldMap
 	} else {
 		fieldMatcher, c2 := fieldMatcherMap[objectFieldName]
 		if !c2 {
