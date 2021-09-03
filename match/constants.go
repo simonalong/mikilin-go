@@ -1,4 +1,4 @@
-package mikilin
+package matcher
 
 const (
 	// EQUAL 值列表
@@ -16,7 +16,7 @@ const (
 	CUSTOMIZE = "customize"
 	ERR_MSG   = "errMsg"
 	CHANGE_TO = "changeTo"
-	ACCEPT    = "accept"
+	ACCEPT    = "Accept"
 	DISABLE   = "disable"
 )
 

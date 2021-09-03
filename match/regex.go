@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"strings"
 )
 
 type RegexMatch struct {
@@ -24,4 +25,19 @@ func (regexMatch *RegexMatch) Match(object interface{}, field reflect.StructFiel
 
 func (regexMatch *RegexMatch) IsEmpty() bool {
 	return regexMatch.Reg == nil
+}
+
+func BuildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
+	if !strings.Contains(subCondition, REGEX) || !strings.Contains(subCondition, EQUAL) {
+		return
+	}
+
+	index := strings.Index(subCondition, "=")
+	value := subCondition[index+1:]
+
+	reg, err := regexp.Compile(value)
+	if err != nil {
+		return
+	}
+	addMatcher(objectTypeFullName, objectFieldName, &RegexMatch{Reg: reg})
 }

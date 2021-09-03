@@ -1,6 +1,11 @@
 package matcher
 
-import "reflect"
+import (
+	log "github.com/sirupsen/logrus"
+	"reflect"
+	"strconv"
+	"strings"
+)
 
 type IsBlankMatch struct {
 	BlackWhiteMatch
@@ -39,4 +44,27 @@ func (isBlankMatch *IsBlankMatch) Match(object interface{}, field reflect.Struct
 
 func (isBlankMatch *IsBlankMatch) IsEmpty() bool {
 	return isBlankMatch.HaveSet == 0
+}
+
+func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
+	if !strings.Contains(subCondition, IsBlank) {
+		return
+	}
+
+	value := "true"
+	if strings.Contains(subCondition, EQUAL) {
+		index := strings.Index(subCondition, "=")
+		value = strings.TrimSpace(subCondition[index+1:])
+	}
+
+	if strings.EqualFold("true", value) || strings.EqualFold("false", value) {
+		var isBlank bool
+		if chgValue, err := strconv.ParseBool(value); err == nil {
+			isBlank = chgValue
+		} else {
+			log.Error(err.Error())
+			return
+		}
+		addMatcher(objectTypeFullName, objectFieldName, &IsBlankMatch{IsBlank: isBlank, HaveSet: 1})
+	}
 }
