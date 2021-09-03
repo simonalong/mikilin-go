@@ -348,7 +348,7 @@ func init() {
 	/* 搜集匹配器 */
 	checkerEntities = append(checkerEntities, CollectorEntity{VALUE, buildValuesMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{IS_BLANK, buildIsBlankMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{RANGE, buildRangeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{CONDITION, buildConditionMatcher})
@@ -356,19 +356,19 @@ func init() {
 	//checkerEntities = append(checkerEntities, CollectorEntity{REGEX, buildRegexMatcher})
 }
 
-func collectErrMsg(objectTypeFullName string, objectFieldName string, subCondition string) {
+func collectErrMsg(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func collectChangeTo(objectTypeFullName string, objectFieldName string, subCondition string) {
+func collectChangeTo(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func collectAccept(objectTypeFullName string, objectFieldName string, subCondition string) {
+func collectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func collectDisable(objectTypeFullName string, objectFieldName string, subCondition string) {
+func collectDisable(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
@@ -427,27 +427,27 @@ func buildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, obje
 	}
 }
 
-func buildRangeMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
+func buildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func buildModelMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
+func buildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func buildEnumTypeMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
+func buildEnumTypeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func buildConditionMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
+func buildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func buildRegexMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
+func buildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
-func buildCustomizeMatcher(objectTypeFullName string, objectFieldName string, subCondition string) {
+func buildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 
 }
 
