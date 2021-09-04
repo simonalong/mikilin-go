@@ -114,8 +114,31 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 					return false, err
 				}
 			}
-		} else if fieldValue.Kind() == reflect.Array || fieldValue.Kind() == reflect.Slice {
-			// Array|Slice 结构
+		} else if fieldValue.Kind() == reflect.Array {
+			// Array 结构
+			arrayLen := fieldValue.Len()
+			for arrayIndex := 0; arrayIndex < arrayLen; arrayIndex++ {
+				fieldValueItem := fieldValue.Index(arrayIndex)
+				result, err := Check(fieldValueItem.Interface())
+				if !result {
+					return false, err
+				}
+			}
+		} else if fieldValue.Kind() == reflect.Slice {
+			// Slice 结构
+			tagJudge := field.Tag.Get(matcher.MATCH)
+			if len(tagJudge) == 0 {
+				continue
+			}
+
+			// 核查结果：任何一个属性失败，则返回失败
+			go check(object, field, fieldValue.Interface(), ch)
+			checkResult := <-ch
+			if !checkResult.Result {
+				close(ch)
+				return false, checkResult.ErrMsg
+			}
+
 			arrayLen := fieldValue.Len()
 			for arrayIndex := 0; arrayIndex < arrayLen; arrayIndex++ {
 				fieldValueItem := fieldValue.Index(arrayIndex)
@@ -197,8 +220,20 @@ func doCollectCollector(objType reflect.Type) {
 			// Map 结构
 			doCollectCollector(field.Type.Key())
 			doCollectCollector(field.Type.Elem())
-		} else if fieldKind == reflect.Array || fieldKind == reflect.Slice {
-			// Array|Slice 结构
+		} else if fieldKind == reflect.Array {
+			// Array 结构
+			doCollectCollector(field.Type.Elem())
+		} else if fieldKind == reflect.Slice {
+			// Slice 结构，先将该切片对应的size也可以进行测试
+			tagMatch := field.Tag.Get(matcher.MATCH)
+			if len(tagMatch) == 0 {
+				continue
+			}
+
+			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
+				collectChecker(objectFullName, fieldKind, field.Name, tagMatch)
+			}
+
 			doCollectCollector(field.Type.Elem())
 		} else {
 			// Uintptr 类型不处理

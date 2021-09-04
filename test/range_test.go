@@ -348,7 +348,7 @@ func TestRangeSlice(t *testing.T) {
 	result, err = mikilin.Check(value, "age")
 	assert.TrueErr(t, result, err)
 
-	////测试 异常情况
+	//测试 异常情况
 	value = RangeSliceEntity{Age: []int{1, 2, 3, 4, 5, 6, 7}}
 	result, err = mikilin.Check(value, "age")
 	assert.Equal(t, err, "核查错误：属性 Age 值 [1 2 3 4 5 6 7] 的数组长度没有命中只允许的范围 [2,6]", result, false)

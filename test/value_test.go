@@ -442,14 +442,14 @@ func TestValueSlice(t *testing.T) {
 	innerSlice := []ValueInnerEntity{}
 
 	// 正常
-	value = ValueSliceEntity{}
-	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2212, Name: "inner_zhou"})
-	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2213, Name: "inner_宋江"})
-	innerSlice = append(innerSlice, ValueInnerEntity{Age: 2212, Name: "inner_宋江"})
-	value.Inner = innerSlice
-
-	result, err = mikilin.Check(value, "inner")
-	assert.TrueErr(t, result, err)
+	//value = ValueSliceEntity{}
+	//innerSlice = append(innerSlice, ValueInnerEntity{Age: 2212, Name: "inner_zhou"})
+	//innerSlice = append(innerSlice, ValueInnerEntity{Age: 2213, Name: "inner_宋江"})
+	//innerSlice = append(innerSlice, ValueInnerEntity{Age: 2212, Name: "inner_宋江"})
+	//value.Inner = innerSlice
+	//
+	//result, err = mikilin.Check(value, "inner")
+	//assert.TrueErr(t, result, err)
 
 	// 异常
 	value = ValueSliceEntity{}
