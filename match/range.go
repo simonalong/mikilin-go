@@ -167,6 +167,7 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 
 		// 如果是数字，则按照数字解析
 		if digitRegex.MatchString(begin) || digitRegex.MatchString(end) {
+			// todo 添加begin要小于end的校验
 			return &RangeEntity{beginAli: beginAli, begin: parseNum(fieldKind, begin), end: parseNum(fieldKind, end), endAli: endAli}
 		}
 
