@@ -28,7 +28,7 @@ func FalseErr(t *testing.T, value bool, errMsg string) {
 	}
 }
 
-// Equal 参数为expect-act-expect-act...结构，其中expect为期望值，act为实际值
+// Equal 参数为act-expect-act-expect-...结构，其中expect为期望值，act为实际值
 func Equal(t *testing.T, objects ...interface{}) {
 	if len(objects)%2 != 0 {
 		t.Error("参数个数必须为偶数")
@@ -36,7 +36,7 @@ func Equal(t *testing.T, objects ...interface{}) {
 
 	for i := 0; i < len(objects); i += 2 {
 		if objects[i] != objects[i+1] {
-			t.Errorf("期望：%v \n          实际：%v", objects[i], objects[i+1])
+			t.Errorf("期望：%v \n          实际：%v", objects[i+1], objects[i])
 		}
 	}
 }

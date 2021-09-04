@@ -36,6 +36,8 @@ func IsCheckedKing(fieldKing reflect.Kind) bool {
 		return true
 	case reflect.String:
 		return true
+	case reflect.Slice:
+		return true
 	default:
 		return false
 	}

@@ -41,10 +41,13 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 		"end":   rangeMatch.End,
 	}
 
-	if util.IsNumber(field.Type.Kind()) {
+	fieldKind := field.Type.Kind()
+	if util.IsNumber(fieldKind) {
 		env["value"] = fieldValue
-	} else if field.Type.Kind() == reflect.String {
+	} else if fieldKind == reflect.String {
 		env["value"] = len(fmt.Sprintf("%v", fieldValue))
+	} else if fieldKind == reflect.Slice {
+		env["value"] = reflect.ValueOf(fieldValue).Len()
 	} else {
 		// todo 如果是时间类型
 	}
@@ -62,18 +65,38 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 
 	if result {
 		if field.Type.Kind() == reflect.String {
-			rangeMatch.SetBlackMsg("属性 %v 的值 %v 的长度位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+			if len(fmt.Sprintf("%v", fieldValue)) > 1024 {
+				rangeMatch.SetBlackMsg("属性 %v 值的字符串长度位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+			} else {
+				rangeMatch.SetBlackMsg("属性 %v 值 %v 的字符串长度位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+			}
 		} else if util.IsNumber(field.Type.Kind()) {
-			rangeMatch.SetBlackMsg("属性 %v 的值 %v 位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+			rangeMatch.SetBlackMsg("属性 %v 值 %v 位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+		} else if field.Type.Kind() == reflect.Slice {
+			if reflect.ValueOf(fieldValue).Len() > 1024 {
+				rangeMatch.SetBlackMsg("属性 %v 值的数组长度位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+			} else {
+				rangeMatch.SetBlackMsg("属性 %v 值 %v 的数组长度位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+			}
 		} else {
 			// todo
 		}
 		return true
 	} else {
 		if field.Type.Kind() == reflect.String {
-			rangeMatch.SetWhiteMsg("属性 %v 的值 %v 的长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+			if len(fmt.Sprintf("%v", fieldValue)) > 1024 {
+				rangeMatch.SetWhiteMsg("属性 %v 值的长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+			} else {
+				rangeMatch.SetWhiteMsg("属性 %v 值 %v 的长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+			}
 		} else if util.IsNumber(field.Type.Kind()) {
-			rangeMatch.SetWhiteMsg("属性 %v 的值 %v 没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+			rangeMatch.SetWhiteMsg("属性 %v 值 %v 没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+		} else if field.Type.Kind() == reflect.Slice {
+			if reflect.ValueOf(fieldValue).Len() > 1024 {
+				rangeMatch.SetWhiteMsg("属性 %v 值的数组长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+			} else {
+				rangeMatch.SetWhiteMsg("属性 %v 值 %v 的数组长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+			}
 		} else {
 			// todo
 		}
@@ -221,7 +244,7 @@ func parseNum(fieldKind reflect.Kind, valueStr string) interface{} {
 			return nil
 		}
 		return result
-	} else if fieldKind == reflect.String {
+	} else if fieldKind == reflect.String || fieldKind == reflect.Slice {
 		result, err := strconv.Atoi(valueStr)
 		if err != nil {
 			return nil
