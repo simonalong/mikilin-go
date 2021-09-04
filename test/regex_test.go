@@ -31,3 +31,12 @@ func TestRegex(t *testing.T) {
 	result, err = mikilin.Check(value, "name")
 	assert.Equal(t, "核查错误：属性 Name 的值 chenzhen 没命中只允许的正则表达式 ^zhou.*zhen$ ", err, result, false)
 }
+
+// Regex的基准测试
+func Benchmark_Regex(b *testing.B) {
+	var value ValueRegexEntity
+	for i := 0; i < b.N; i++ {
+		value = ValueRegexEntity{Name: "chenzhen"}
+		mikilin.Check(value, "name")
+	}
+}

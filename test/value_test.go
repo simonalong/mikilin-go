@@ -488,3 +488,12 @@ func TestValueSlicePtr(t *testing.T) {
 	result, err = mikilin.Check(value, "inner")
 	assert.Equal(t, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", err, false, result)
 }
+
+// value的基准测试
+func Benchmark_Value(b *testing.B) {
+	var value ValueBaseEntityOne
+	for i := 0; i < b.N; i++ {
+		value = ValueBaseEntityOne{Age: 12}
+		mikilin.Check(value, "age")
+	}
+}

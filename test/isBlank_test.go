@@ -50,3 +50,12 @@ func TestIsBlankBaseSimple(t *testing.T) {
 	result, err = mikilin.Check(value, "name")
 	assert.Equal(t, "核查错误：属性 Name 的值为非空字符", err, result, false)
 }
+
+// isBlank的基准测试
+func Benchmark_IsBlank(b *testing.B) {
+	var value IsBlankBaseSimpleEntity
+	for i := 0; i < b.N; i++ {
+		value = IsBlankBaseSimpleEntity{Name: "zhou"}
+		mikilin.Check(value, "name")
+	}
+}
