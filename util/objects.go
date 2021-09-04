@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-// 判断是否是核查的类型
+// IsCheckedKing 是否待核查的类型
 func IsCheckedKing(fieldKing reflect.Kind) bool {
 	switch fieldKing {
 	case reflect.Int:
@@ -35,6 +35,38 @@ func IsCheckedKing(fieldKing reflect.Kind) bool {
 	case reflect.Bool:
 		return true
 	case reflect.String:
+		return true
+	default:
+		return false
+	}
+}
+
+// IsNumber 是否数字类型
+func IsNumber(fieldKing reflect.Kind) bool {
+	switch fieldKing {
+	case reflect.Int:
+		return true
+	case reflect.Int8:
+		return true
+	case reflect.Int16:
+		return true
+	case reflect.Int32:
+		return true
+	case reflect.Int64:
+		return true
+	case reflect.Uint:
+		return true
+	case reflect.Uint8:
+		return true
+	case reflect.Uint16:
+		return true
+	case reflect.Uint32:
+		return true
+	case reflect.Uint64:
+		return true
+	case reflect.Float32:
+		return true
+	case reflect.Float64:
 		return true
 	default:
 		return false

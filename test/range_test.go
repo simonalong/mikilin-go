@@ -58,7 +58,7 @@ type RangeIntEntityChina struct {
 // 浮点数类型
 type RangeFloatEntity struct {
 	Name  string
-	money float32 `match:"range=[12.3， 12.31]"`
+	Money float32 `match:"range=[10.37， 20.31]"`
 }
 
 // 字符类型
@@ -84,8 +84,8 @@ type RangeTimeCalEntity struct {
 	createTime time.Time `match:"range=[]"`
 }
 
-// 测试基本类型1
-func TestRangeBase1(t *testing.T) {
+// 测试整数类型1
+func TestRangeInt1(t *testing.T) {
 	var value RangeIntEntity1
 	var result bool
 	var err string
@@ -101,8 +101,8 @@ func TestRangeBase1(t *testing.T) {
 	assert.Equal(t, "核查错误：属性 Age 的 3 没有命中只允许的范围 [1,2]", err, result, false)
 }
 
-// 测试基本类型2
-func TestRangeBase2(t *testing.T) {
+// 测试整数类型2
+func TestRangeInt2(t *testing.T) {
 	var value RangeIntEntity2
 	var result bool
 	var err string
@@ -123,8 +123,8 @@ func TestRangeBase2(t *testing.T) {
 	assert.Equal(t, "核查错误：属性 Age 的 2 没有命中只允许的范围 [3，]", err, result, false)
 }
 
-// 测试基本类型3
-func TestRangeBase3(t *testing.T) {
+// 测试整数类型3
+func TestRangeInt3(t *testing.T) {
 	var value RangeIntEntity3
 	var result bool
 	var err string
@@ -145,8 +145,8 @@ func TestRangeBase3(t *testing.T) {
 	assert.Equal(t, "核查错误：属性 Age 的 2 没有命中只允许的范围 [3,)", err, result, false)
 }
 
-// 测试基本类型4
-func TestRangeBase4(t *testing.T) {
+// 测试整数类型4
+func TestRangeInt4(t *testing.T) {
 
 	// todo
 	//测试 正常情况
@@ -155,8 +155,8 @@ func TestRangeBase4(t *testing.T) {
 	//assert.TrueErr(t, result, err)
 }
 
-// 测试基本类型5
-func TestRangeBase5(t *testing.T) {
+// 测试整数类型5
+func TestRangeInt5(t *testing.T) {
 	var value RangeIntEntity5
 	var result bool
 	var err string
@@ -182,8 +182,8 @@ func TestRangeBase5(t *testing.T) {
 	assert.Equal(t, "核查错误：属性 Age 的 2 没有命中只允许的范围 (2,7]", err, result, false)
 }
 
-// 测试基本类型6
-func TestRangeBase6(t *testing.T) {
+// 测试整数类型6
+func TestRangeInt6(t *testing.T) {
 	var value RangeIntEntity6
 	var result bool
 	var err string
@@ -209,8 +209,8 @@ func TestRangeBase6(t *testing.T) {
 	assert.Equal(t, "核查错误：属性 Age 的 2 没有命中只允许的范围 (2,7)", err, result, false)
 }
 
-// 测试基本类型7
-func TestRangeBase7(t *testing.T) {
+// 测试整数类型7
+func TestRangeInt7(t *testing.T) {
 	var value RangeIntEntity7
 	var result bool
 	var err string
@@ -237,7 +237,7 @@ func TestRangeBase7(t *testing.T) {
 }
 
 // 测试中文逗号表示
-func TestRangeBaseChinaComma(t *testing.T) {
+func TestRangeIntChinaComma(t *testing.T) {
 	var value RangeIntEntityChina
 	var result bool
 	var err string
@@ -261,4 +261,68 @@ func TestRangeBaseChinaComma(t *testing.T) {
 	value = RangeIntEntityChina{Age: 12}
 	result, err = mikilin.Check(value, "age")
 	assert.Equal(t, "核查错误：属性 Age 的 12 没有命中只允许的范围 [1，10]", err, result, false)
+}
+
+// 测试浮点数类型1
+func TestRangeFloat1(t *testing.T) {
+	var value RangeFloatEntity
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeFloatEntity{Money: 10.37}
+	result, err = mikilin.Check(value, "money")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeFloatEntity{Money: 15.0}
+	result, err = mikilin.Check(value, "money")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeFloatEntity{Money: 20.31}
+	result, err = mikilin.Check(value, "money")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeFloatEntity{Money: 10.01}
+	result, err = mikilin.Check(value, "money")
+	assert.Equal(t, "核查错误：属性 Money 的 10.01 没有命中只允许的范围 [10.37，20.31]", err, result, false)
+
+	//测试 异常情况
+	value = RangeFloatEntity{Money: 20.32}
+	result, err = mikilin.Check(value, "money")
+	assert.Equal(t, "核查错误：属性 Money 的 20.32 没有命中只允许的范围 [10.37，20.31]", err, result, false)
+}
+
+// 测试字符类型1
+func TestRangeString(t *testing.T) {
+	var value RangeStringEntity
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeStringEntity{Name: "zh"}
+	result, err = mikilin.Check(value, "name")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeStringEntity{Name: "zhou"}
+	result, err = mikilin.Check(value, "name")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeStringEntity{Name: "zhou zhen yo"}
+	result, err = mikilin.Check(value, "name")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeStringEntity{Name: "zhou zhen yong"}
+	result, err = mikilin.Check(value, "name")
+	assert.Equal(t, "核查错误：属性 Name 的值 zhou zhen yong 的长度没有命中只允许的范围 [2,12]", err, result, false)
+
+	//测试 异常情况
+	value = RangeStringEntity{Name: "z"}
+	result, err = mikilin.Check(value, "name")
+	assert.Equal(t, "核查错误：属性 Name 的值 z 的长度没有命中只允许的范围 [2,12]", err, result, false)
 }

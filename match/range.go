@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -38,7 +39,14 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 	env := map[string]interface{}{
 		"begin": rangeMatch.Begin,
 		"end":   rangeMatch.End,
-		"o":     fieldValue,
+	}
+
+	if util.IsNumber(field.Type.Kind()) {
+		env["value"] = fieldValue
+	} else if field.Type.Kind() == reflect.String {
+		env["value"] = len(fmt.Sprintf("%v", fieldValue))
+	} else {
+		// todo 如果是时间类型
 	}
 
 	output, err := expr.Run(rangeMatch.Program, env)
@@ -53,10 +61,22 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 	}
 
 	if result {
-		rangeMatch.SetBlackMsg("属性 %v 的 %v 位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+		if field.Type.Kind() == reflect.String {
+			rangeMatch.SetBlackMsg("属性 %v 的值 %v 的长度位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+		} else if util.IsNumber(field.Type.Kind()) {
+			rangeMatch.SetBlackMsg("属性 %v 的值 %v 位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+		} else {
+			// todo
+		}
 		return true
 	} else {
-		rangeMatch.SetWhiteMsg("属性 %v 的 %v 没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+		if field.Type.Kind() == reflect.String {
+			rangeMatch.SetWhiteMsg("属性 %v 的值 %v 的长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+		} else if util.IsNumber(field.Type.Kind()) {
+			rangeMatch.SetWhiteMsg("属性 %v 的值 %v 没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
+		} else {
+			// todo
+		}
 		return false
 	}
 }
@@ -102,27 +122,27 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 			return
 		} else {
 			if RIGHT_EQUAL == endAli {
-				script = "o <= end"
+				script = "value <= end"
 			} else if RIGHT_UN_EQUAL == endAli {
-				script = "o < end"
+				script = "value < end"
 			}
 		}
 	} else {
 		if end == nil {
 			if LEFT_EQUAL == beginAli {
-				script = "begin <= o"
+				script = "begin <= value"
 			} else if LEFT_UN_EQUAL == beginAli {
-				script = "begin < o"
+				script = "begin < value"
 			}
 		} else {
 			if LEFT_EQUAL == beginAli && RIGHT_EQUAL == endAli {
-				script = "begin <= o && o <= end"
+				script = "begin <= value && value <= end"
 			} else if LEFT_EQUAL == beginAli && RIGHT_UN_EQUAL == endAli {
-				script = "begin <= o && o < end"
+				script = "begin <= value && value < end"
 			} else if LEFT_UN_EQUAL == beginAli && RIGHT_EQUAL == endAli {
-				script = "begin < o && o <= end"
+				script = "begin < value && value <= end"
 			} else if LEFT_UN_EQUAL == beginAli && RIGHT_UN_EQUAL == endAli {
-				script = "begin < o && o < end"
+				script = "begin < value && value < end"
 			}
 		}
 	}
@@ -195,9 +215,20 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 }
 
 func parseNum(fieldKind reflect.Kind, valueStr string) interface{} {
-	result, err := util.Cast(fieldKind, valueStr)
-	if err != nil {
+	if util.IsNumber(fieldKind) {
+		result, err := util.Cast(fieldKind, valueStr)
+		if err != nil {
+			return nil
+		}
+		return result
+	} else if fieldKind == reflect.String {
+		result, err := strconv.Atoi(valueStr)
+		if err != nil {
+			return nil
+		}
+		return result
+	} else {
+		// todo
 		return nil
 	}
-	return result
 }
