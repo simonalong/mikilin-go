@@ -10,7 +10,7 @@ import (
 // 整数类型1
 type RangeIntEntity1 struct {
 	Name string
-	Age  int `match:"range=[1，2]"`
+	Age  int `match:"range=[1, 2]"`
 }
 
 // 整数类型2
@@ -85,7 +85,12 @@ func TestRangeBase(t *testing.T) {
 	var err string
 
 	//测试 正常情况
-	value = RangeIntEntity1{Age: 1}
+	//value = RangeIntEntity1{Age: 1}
+	//result, err = mikilin.Check(value, "age")
+	//assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeIntEntity1{Age: 3}
 	result, err = mikilin.Check(value, "age")
-	assert.TrueErr(t, result, err)
+	assert.Equal(t, "核查错误：属性 Age 的 3 没有命中只允许的范围 [1,2]", err, result, false)
 }

@@ -41,7 +41,14 @@ func IsCheckedKing(fieldKing reflect.Kind) bool {
 	}
 }
 
+func CastBool(valueStr string) (bool, error) {
+	return strconv.ParseBool(valueStr)
+}
+
 func Cast(fieldKind reflect.Kind, valueStr string) (interface{}, error) {
+	if valueStr == "nil" || valueStr == "" {
+		return nil, nil
+	}
 	switch fieldKind {
 	case reflect.Int:
 		return strconv.Atoi(valueStr)

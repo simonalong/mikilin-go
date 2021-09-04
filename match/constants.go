@@ -1,5 +1,6 @@
 package matcher
 
+/* 匹配 */
 const (
 	// EQUAL 值列表
 	EQUAL = "="
@@ -14,11 +15,26 @@ const (
 	CONDITION = "condition"
 	REGEX     = "regex"
 	CUSTOMIZE = "customize"
+)
+
+/* 匹配后处理 */
+const (
 	ERR_MSG   = "errMsg"
 	CHANGE_TO = "changeTo"
 	ACCEPT    = "Accept"
 	DISABLE   = "disable"
 )
 
-const MATCH = "match"
-const CHECK = "check"
+/* tag关键字 */
+const (
+	MATCH = "match"
+	CHECK = "check"
+)
+
+/* range匹配关键字 */
+const (
+	LEFT_EQUAL     = "["
+	LEFT_UN_EQUAL  = "("
+	RIGHT_UN_EQUAL = ")"
+	RIGHT_EQUAL    = "]"
+)
