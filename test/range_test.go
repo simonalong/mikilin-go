@@ -73,15 +73,40 @@ type RangeSliceEntity struct {
 	Age  []int `match:"range=[2, 6]"`
 }
 
-// 时间类型
-type RangeTimeEntity struct {
-	createTime time.Time `match:"range=[]"`
+// 时间类型1
+type RangeTimeEntity1 struct {
+	CreateTime time.Time `match:"range=[2019-07-13 12:00:23.321, 2019-08-23 12:00:23.321]"`
+}
+
+// 时间类型2
+type RangeTimeEntity2 struct {
+	CreateTime time.Time `match:"range=[2019-07-13 12:00:23.321, ]"`
+}
+
+// 时间类型3
+type RangeTimeEntity3 struct {
+	CreateTime time.Time `match:"range=(, 2019-07-23 12:00:23.321]"`
+}
+
+// 时间类型4
+type RangeTimeEntity4 struct {
+	CreateTime time.Time `match:"range=[2019-07-23 12:00:23.321, now)"`
+}
+
+// 时间类型4
+type RangeTimeEntity5 struct {
+	CreateTime time.Time `match:"range=past"`
+}
+
+// 时间类型4
+type RangeTimeEntity6 struct {
+	CreateTime time.Time `match:"range=future"`
 }
 
 // 时间计算
 type RangeTimeCalEntity struct {
 	Name       string
-	createTime time.Time `match:"range=[]"`
+	CreateTime time.Time `match:"range=+1h"`
 }
 
 // 测试整数类型1
@@ -357,6 +382,18 @@ func TestRangeSlice(t *testing.T) {
 	value = RangeSliceEntity{Age: []int{1}}
 	result, err = mikilin.Check(value, "age")
 	assert.Equal(t, err, "核查错误：属性 Age 值 [1] 的数组长度没有命中只允许的范围 [2,6]", result, false)
+}
+
+// 测试时间类型1
+func TestRangeTime1(t *testing.T) {
+	var value RangeTimeEntity1
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeEntity1{CreateTime: time.Date(2019, 7, 14, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
 }
 
 // 压测进行基准测试

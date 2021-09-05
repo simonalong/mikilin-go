@@ -1,6 +1,7 @@
 package mikilin
 
 import (
+	"github.com/SimonAlong/Mikilin-go/constant"
 	matcher "github.com/SimonAlong/Mikilin-go/match"
 	"github.com/SimonAlong/Mikilin-go/util"
 	"reflect"
@@ -27,10 +28,10 @@ type CheckResult struct {
 var checkerEntities []CollectorEntity
 
 /* 核查的标签 */
-var matchTagArray = []string{matcher.VALUE, matcher.IsBlank, matcher.RANGE, matcher.MODEL, matcher.CONDITION, matcher.REGEX, matcher.CUSTOMIZE}
+var matchTagArray = []string{constant.VALUE, constant.IsBlank, constant.RANGE, constant.MODEL, constant.CONDITION, constant.REGEX, constant.CUSTOMIZE}
 
 /* 匹配后处理的标签 */
-var handleTagArray = []string{matcher.ERR_MSG, matcher.CHANGE_TO, matcher.ACCEPT, matcher.DISABLE}
+var handleTagArray = []string{constant.ERR_MSG, constant.CHANGE_TO, constant.ACCEPT, constant.DISABLE}
 
 func Check(object interface{}, fieldNames ...string) (bool, string) {
 	if object == nil {
@@ -72,8 +73,8 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 		}
 
 		// 基本类型
-		if util.IsCheckedKing(fieldValue.Kind()) {
-			tagJudge := field.Tag.Get(matcher.MATCH)
+		if util.IsCheckedKing(fieldValue.Type()) {
+			tagJudge := field.Tag.Get(constant.MATCH)
 			if len(tagJudge) == 0 {
 				continue
 			}
@@ -87,8 +88,8 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 			}
 		} else if fieldValue.Kind() == reflect.Struct {
 			// struct 结构类型
-			tagMatch := field.Tag.Get(matcher.MATCH)
-			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != matcher.CHECK) {
+			tagMatch := field.Tag.Get(constant.MATCH)
+			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != constant.CHECK) {
 				continue
 			}
 			result, err := Check(fieldValue.Interface())
@@ -126,7 +127,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 			}
 		} else if fieldValue.Kind() == reflect.Slice {
 			// Slice 结构
-			tagJudge := field.Tag.Get(matcher.MATCH)
+			tagJudge := field.Tag.Get(constant.MATCH)
 			if len(tagJudge) == 0 {
 				continue
 			}
@@ -174,7 +175,7 @@ func collectCollector(objType reflect.Type) {
 
 func doCollectCollector(objType reflect.Type) {
 	// 基本类型不需要搜集
-	if util.IsCheckedKing(objType.Kind()) {
+	if util.IsCheckedKing(objType) {
 		return
 	}
 
@@ -199,8 +200,8 @@ func doCollectCollector(objType reflect.Type) {
 		}
 
 		// 基本类型
-		if util.IsCheckedKing(fieldKind) {
-			tagMatch := field.Tag.Get(matcher.MATCH)
+		if util.IsCheckedKing(field.Type) {
+			tagMatch := field.Tag.Get(constant.MATCH)
 			if len(tagMatch) == 0 {
 				continue
 			}
@@ -210,8 +211,8 @@ func doCollectCollector(objType reflect.Type) {
 			}
 		} else if fieldKind == reflect.Struct {
 			// struct 结构类型
-			tagMatch := field.Tag.Get(matcher.MATCH)
-			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != matcher.CHECK) {
+			tagMatch := field.Tag.Get(constant.MATCH)
+			if len(tagMatch) == 0 || (len(tagMatch) == 1 && tagMatch != constant.CHECK) {
 				continue
 			}
 
@@ -225,7 +226,7 @@ func doCollectCollector(objType reflect.Type) {
 			doCollectCollector(field.Type.Elem())
 		} else if fieldKind == reflect.Slice {
 			// Slice 结构，先将该切片对应的size也可以进行测试
-			tagMatch := field.Tag.Get(matcher.MATCH)
+			tagMatch := field.Tag.Get(constant.MATCH)
 			if len(tagMatch) == 0 {
 				continue
 			}
@@ -276,13 +277,11 @@ func collectChecker(objectFullName string, fieldKind reflect.Kind, fieldName str
 			continue
 		}
 		subJudgeStr := matchJudge[lastIndex:subIndex]
-		subJudgeStr = strings.Replace(subJudgeStr, " ", "", -1)
 		buildChecker(objectFullName, fieldKind, fieldName, subJudgeStr)
 		lastIndex = subIndex
 	}
 
 	subJudgeStr := matchJudge[lastIndex:]
-	subJudgeStr = strings.Replace(subJudgeStr, " ", "", -1)
 	buildChecker(objectFullName, fieldKind, fieldName, subJudgeStr)
 }
 
@@ -353,12 +352,12 @@ func init() {
 	//checkerEntities = append(checkerEntities, CollectorEntity{DISABLE, collectDisable})
 
 	/* 搜集匹配器 */
-	checkerEntities = append(checkerEntities, CollectorEntity{matcher.VALUE, matcher.BuildValuesMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{matcher.IsBlank, matcher.BuildIsBlankMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{matcher.RANGE, matcher.BuildRangeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.VALUE, matcher.BuildValuesMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.IsBlank, matcher.BuildIsBlankMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.RANGE, matcher.BuildRangeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{MODEL, buildModelMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{CONDITION, buildConditionMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{CUSTOMIZE, buildCustomizeMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{matcher.REGEX, matcher.BuildRegexMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.REGEX, matcher.BuildRegexMatcher})
 }

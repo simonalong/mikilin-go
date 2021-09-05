@@ -1,4 +1,4 @@
-package matcher
+package constant
 
 /* 匹配 */
 const (
@@ -37,4 +37,8 @@ const (
 	LEFT_UN_EQUAL  = "("
 	RIGHT_UN_EQUAL = ")"
 	RIGHT_EQUAL    = "]"
+
+	NOW    = "now"
+	PAST   = "past"
+	FUTURE = "future"
 )

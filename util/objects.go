@@ -6,8 +6,8 @@ import (
 )
 
 // IsCheckedKing 是否待核查的类型
-func IsCheckedKing(fieldKing reflect.Kind) bool {
-	switch fieldKing {
+func IsCheckedKing(fieldType reflect.Type) bool {
+	switch fieldType.Kind() {
 	case reflect.Int:
 		return true
 	case reflect.Int8:
@@ -37,6 +37,9 @@ func IsCheckedKing(fieldKing reflect.Kind) bool {
 	case reflect.String:
 		return true
 	default:
+		if fieldType.String() == "time.Time" {
+			return true
+		}
 		return false
 	}
 }

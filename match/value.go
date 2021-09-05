@@ -1,6 +1,7 @@
 package matcher
 
 import (
+	"github.com/SimonAlong/Mikilin-go/constant"
 	"github.com/SimonAlong/Mikilin-go/util"
 	log "github.com/sirupsen/logrus"
 	"reflect"
@@ -30,7 +31,10 @@ func (valueMatch *ValueMatch) IsEmpty() bool {
 }
 
 func BuildValuesMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
-	if !strings.Contains(subCondition, VALUE) || !strings.Contains(subCondition, EQUAL) {
+	if fieldKind == reflect.Slice {
+		return
+	}
+	if !strings.Contains(subCondition, constant.VALUE) || !strings.Contains(subCondition, constant.EQUAL) {
 		return
 	}
 

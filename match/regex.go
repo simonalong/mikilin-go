@@ -2,6 +2,7 @@ package matcher
 
 import (
 	"fmt"
+	"github.com/SimonAlong/Mikilin-go/constant"
 	"reflect"
 	"regexp"
 	"strings"
@@ -28,7 +29,10 @@ func (regexMatch *RegexMatch) IsEmpty() bool {
 }
 
 func BuildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
-	if !strings.Contains(subCondition, REGEX) || !strings.Contains(subCondition, EQUAL) {
+	if fieldKind == reflect.Slice {
+		return
+	}
+	if !strings.Contains(subCondition, constant.REGEX) || !strings.Contains(subCondition, constant.EQUAL) {
 		return
 	}
 

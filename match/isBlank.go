@@ -1,6 +1,7 @@
 package matcher
 
 import (
+	"github.com/SimonAlong/Mikilin-go/constant"
 	log "github.com/sirupsen/logrus"
 	"reflect"
 	"strconv"
@@ -47,12 +48,16 @@ func (isBlankMatch *IsBlankMatch) IsEmpty() bool {
 }
 
 func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
-	if !strings.Contains(subCondition, IsBlank) {
+	if fieldKind == reflect.Slice {
+		return
+	}
+
+	if !strings.Contains(subCondition, constant.IsBlank) {
 		return
 	}
 
 	value := "true"
-	if strings.Contains(subCondition, EQUAL) {
+	if strings.Contains(subCondition, constant.EQUAL) {
 		index := strings.Index(subCondition, "=")
 		value = strings.TrimSpace(subCondition[index+1:])
 	}
