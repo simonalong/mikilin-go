@@ -116,9 +116,7 @@ func (rangeMatch *RangeMatch) IsEmpty() bool {
 	return rangeMatch.Script == ""
 }
 
-/*
- * []：时间或者数字范围匹配
- */
+// []：时间或者数字范围匹配
 var rangeRegex = regexp.MustCompile("^(\\(|\\[)(.*)(,|，)(\\s)*(.*)(\\)|\\])$")
 
 // digitRegex 全是数字匹配（整数，浮点数，0，负数）
