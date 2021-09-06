@@ -1,7 +1,6 @@
 package util
 
 import (
-	"github.com/SimonAlong/Mikilin-go/constant"
 	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
@@ -54,8 +53,8 @@ func ParseTime(timeStr string) time.Time {
 	timeStr = strings.TrimSpace(timeStr)
 	timeStr = strings.TrimSpace(strings.ReplaceAll(timeStr, "\\'", " "))
 
-	if timeStr == constant.NOW {
-		return time.Now()
+	if timeStr == "" {
+		return emptyTime
 	}
 	if yRegex.MatchString(timeStr) {
 		if times, err := time.Parse(yTime, timeStr); err == nil {

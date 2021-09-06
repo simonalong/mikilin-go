@@ -23,6 +23,8 @@ type RangeMatch struct {
 	Script       string
 	Begin        interface{}
 	End          interface{}
+	BeginNow     bool
+	EndNow       bool
 	Program      *vm.Program
 }
 
@@ -33,6 +35,8 @@ type RangeEntity struct {
 	endAli      string
 	dateFlag    bool
 	dynamicTime bool
+	beginNow    bool
+	endNow      bool
 }
 
 type Predicate func(subCondition string) bool
@@ -52,8 +56,13 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 		env["value"] = reflect.ValueOf(fieldValue).Len()
 	} else if field.Type.String() == "time.Time" {
 		env["value"] = fieldValue.(time.Time).UnixNano()
+		if rangeMatch.BeginNow {
+			env["begin"] = time.Now().UnixNano()
+		} else if rangeMatch.EndNow {
+			env["end"] = time.Now().UnixNano()
+		}
 	} else {
-		// todo 如果是时间类型
+		// todo
 	}
 
 	output, err := expr.Run(rangeMatch.Program, env)
@@ -142,11 +151,27 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	begin := rangeEntity.begin
 	end := rangeEntity.end
 	endAli := rangeEntity.endAli
+	beginNow := rangeEntity.beginNow
+	endNow := rangeEntity.endNow
 
 	var script string
 	if begin == nil {
 		if end == nil {
-			return
+			if beginNow {
+				if constant.LEFT_EQUAL == beginAli {
+					script = "begin <= value"
+				} else if constant.LEFT_UN_EQUAL == beginAli {
+					script = "begin < value"
+				}
+			} else if endNow {
+				if constant.RIGHT_EQUAL == endAli {
+					script = "value <= end"
+				} else if constant.RIGHT_UN_EQUAL == endAli {
+					script = "value < end"
+				}
+			} else {
+				return
+			}
 		} else {
 			if constant.RIGHT_EQUAL == endAli {
 				script = "value <= end"
@@ -186,7 +211,7 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 		return
 	}
 
-	addMatcher(objectTypeFullName, objectFieldName, &RangeMatch{Program: program, Begin: begin, End: end, Script: script, RangeExpress: value})
+	addMatcher(objectTypeFullName, objectFieldName, &RangeMatch{Program: program, Begin: begin, End: end, Script: script, RangeExpress: value, BeginNow: beginNow, EndNow: endNow})
 }
 
 func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
@@ -209,12 +234,21 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 		}
 
 		// 如果是数字，则按照数字解析
-		if digitRegex.MatchString(begin) || digitRegex.MatchString(end) {
+		if (begin != "" && digitRegex.MatchString(begin)) || (end != "" && digitRegex.MatchString(end)) {
 			// todo 添加begin要小于end的校验
 			return &RangeEntity{beginAli: beginAli, begin: parseNum(fieldKind, begin), end: parseNum(fieldKind, end), endAli: endAli, dateFlag: true}
-		} else if timePlusRegex.MatchString(begin) || timePlusRegex.MatchString(end) {
+		} else if (begin != "" && timePlusRegex.MatchString(begin)) || (end != "" && timePlusRegex.MatchString(end)) {
 			// 解析动态时间 todo
 		} else {
+			var beginNow bool
+			var endNow bool
+			if begin == constant.NOW {
+				beginNow = true
+			}
+
+			if end == constant.NOW {
+				beginNow = true
+			}
 			beginTime := util.ParseTime(begin)
 			endTime := util.ParseTime(end)
 
@@ -226,14 +260,14 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 					log.Errorf("时间的范围起始点不正确，起点时间不应该大于终点时间")
 					return nil
 				}
-				return &RangeEntity{beginAli: beginAli, begin: beginTime.UnixNano(), end: endTime.UnixNano(), endAli: endAli, dateFlag: true}
+				return &RangeEntity{beginAli: beginAli, begin: beginTime.UnixNano(), end: nil, endAli: endAli, dateFlag: true, beginNow: beginNow, endNow: endNow}
 			} else if beginTimeIsEmpty && endTimeIsEmpty {
 				log.Errorf("range 匹配器格式输入错误，解析数字或者日期失败, time: %v", subData)
 			} else {
 				if !beginTimeIsEmpty {
-					return &RangeEntity{beginAli: beginAli, begin: beginTime.UnixNano(), end: 0, endAli: endAli, dateFlag: true}
+					return &RangeEntity{beginAli: beginAli, begin: beginTime.UnixNano(), end: nil, endAli: endAli, dateFlag: true, beginNow: beginNow, endNow: endNow}
 				} else if !endTimeIsEmpty {
-					return &RangeEntity{beginAli: beginAli, begin: 0, end: endTime.UnixNano(), endAli: endAli, dateFlag: true}
+					return &RangeEntity{beginAli: beginAli, begin: nil, end: endTime.UnixNano(), endAli: endAli, dateFlag: true, beginNow: beginNow, endNow: endNow}
 				} else {
 					return nil
 				}
@@ -243,10 +277,10 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 		// 匹配过去和未来的时间
 		if subCondition == constant.PAST {
 			// 过去，则范围为(null, now)
-			return &RangeEntity{beginAli: constant.LEFT_UN_EQUAL, begin: nil, end: constant.NOW, endAli: constant.RIGHT_UN_EQUAL, dateFlag: true}
+			return &RangeEntity{beginAli: constant.LEFT_UN_EQUAL, begin: nil, end: nil, endAli: constant.RIGHT_UN_EQUAL, dateFlag: true, endNow: true}
 		} else if subCondition == constant.FUTURE {
 			// 未来，则范围为(now, null)
-			return &RangeEntity{beginAli: constant.LEFT_UN_EQUAL, begin: constant.NOW, end: nil, endAli: constant.RIGHT_UN_EQUAL, dateFlag: true}
+			return &RangeEntity{beginAli: constant.LEFT_UN_EQUAL, begin: nil, end: nil, endAli: constant.RIGHT_UN_EQUAL, dateFlag: true, beginNow: true}
 		}
 		return nil
 	}

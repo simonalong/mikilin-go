@@ -406,7 +406,7 @@ func TestRangeTime1(t *testing.T) {
 	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2019-09-14 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 [2019-07-13 12:00:23.321, 2019-08-23 12:00:23.321] 中", result, false)
 }
 
-// 测试时间类型1
+// 测试时间类型2
 func TestRangeTime2(t *testing.T) {
 	var value RangeTimeEntity2
 	var result bool
@@ -425,7 +425,63 @@ func TestRangeTime2(t *testing.T) {
 	//测试 异常情况
 	value = RangeTimeEntity2{CreateTime: time.Date(2019, 6, 14, 12, 0, 23, 321, time.Local)}
 	result, err = mikilin.Check(value, "createTime")
-	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2019-06-14 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 [2019-07-13 12:00:23.321, 2019-08-23 12:00:23.321] 中", result, false)
+	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2019-06-14 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 [2019-07-13 12:00:23.321, ] 中", result, false)
+}
+
+// 测试时间类型3
+func TestRangeTime3(t *testing.T) {
+	var value RangeTimeEntity3
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeEntity3{CreateTime: time.Date(2019, 6, 14, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeEntity3{CreateTime: time.Date(2019, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2019-07-24 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 (, 2019-07-23 12:00:23.321] 中", result, false)
+}
+
+// 测试时间类型4
+func TestRangeTime4(t *testing.T) {
+	var value RangeTimeEntity4
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeEntity4{CreateTime: time.Date(2019, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeEntity4{CreateTime: time.Date(2018, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2018-07-24 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 [2019-07-23 12:00:23.321, now) 中", result, false)
+
+	//测试 异常情况
+	value = RangeTimeEntity4{CreateTime: time.Date(9018, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 9018-07-24 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 [2019-07-23 12:00:23.321, now) 中", result, false)
+}
+
+// 测试时间类型5
+func TestRangeTime5(t *testing.T) {
+	var value RangeTimeEntity5
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeEntity5{CreateTime: time.Date(2019, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeEntity5{CreateTime: time.Date(2218, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2218-07-24 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 past 中", result, false)
 }
 
 // 压测进行基准测试
