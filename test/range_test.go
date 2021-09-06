@@ -484,6 +484,23 @@ func TestRangeTime5(t *testing.T) {
 	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2218-07-24 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 past 中", result, false)
 }
 
+// 测试时间类型6
+func TestRangeTime6(t *testing.T) {
+	var value RangeTimeEntity6
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeEntity6{CreateTime: time.Date(2119, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeEntity6{CreateTime: time.Date(1918, 7, 24, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 1918-07-24 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 future 中", result, false)
+}
+
 // 压测进行基准测试
 func Benchmark_Range(b *testing.B) {
 	var value RangeSliceEntity
