@@ -159,7 +159,7 @@ func TestRangeInt1(t *testing.T) {
 	//测试 正常情况
 	value = RangeIntEntity1{Age: 3}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 3 没有命中只允许的范围 [1,2]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 3 没有命中只允许的范围 [1, 2]", result, false)
 }
 
 // 测试整数类型2
@@ -235,12 +235,12 @@ func TestRangeInt5(t *testing.T) {
 	//测试 异常情况
 	value = RangeIntEntity5{Age: 8}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 8 没有命中只允许的范围 (2,7]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 8 没有命中只允许的范围 (2, 7]", result, false)
 
 	//测试 异常情况
 	value = RangeIntEntity5{Age: 2}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 2 没有命中只允许的范围 (2,7]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 2 没有命中只允许的范围 (2, 7]", result, false)
 }
 
 // 测试整数类型6
@@ -257,17 +257,17 @@ func TestRangeInt6(t *testing.T) {
 	//测试 正常情况
 	value = RangeIntEntity6{Age: 7}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 7 没有命中只允许的范围 (2,7)", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 7 没有命中只允许的范围 (2, 7)", result, false)
 
 	//测试 异常情况
 	value = RangeIntEntity6{Age: 8}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 8 没有命中只允许的范围 (2,7)", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 8 没有命中只允许的范围 (2, 7)", result, false)
 
 	//测试 异常情况
 	value = RangeIntEntity6{Age: 2}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 2 没有命中只允许的范围 (2,7)", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 2 没有命中只允许的范围 (2, 7)", result, false)
 }
 
 // 测试整数类型7
@@ -348,12 +348,12 @@ func TestRangeFloat1(t *testing.T) {
 	//测试 异常情况
 	value = RangeFloatEntity{Money: 10.01}
 	result, err = mikilin.Check(value, "money")
-	assert.Equal(t, err, "核查错误：属性 Money 值 10.01 没有命中只允许的范围 [10.37，20.31]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Money 值 10.01 没有命中只允许的范围 [10.37， 20.31]", result, false)
 
 	//测试 异常情况
 	value = RangeFloatEntity{Money: 20.32}
 	result, err = mikilin.Check(value, "money")
-	assert.Equal(t, err, "核查错误：属性 Money 值 20.32 没有命中只允许的范围 [10.37，20.31]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Money 值 20.32 没有命中只允许的范围 [10.37， 20.31]", result, false)
 }
 
 // 测试字符类型1
@@ -380,12 +380,12 @@ func TestRangeString(t *testing.T) {
 	//测试 异常情况
 	value = RangeStringEntity{Name: "zhou zhen yong"}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, err, "核查错误：属性 Name 值 zhou zhen yong 的长度没有命中只允许的范围 [2,12]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Name 值 zhou zhen yong 的长度没有命中只允许的范围 [2, 12]", result, false)
 
 	//测试 异常情况
 	value = RangeStringEntity{Name: "z"}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, err, "核查错误：属性 Name 值 z 的长度没有命中只允许的范围 [2,12]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Name 值 z 的长度没有命中只允许的范围 [2, 12]", result, false)
 }
 
 // 测试分片类型1
@@ -412,12 +412,12 @@ func TestRangeSlice(t *testing.T) {
 	//测试 异常情况
 	value = RangeSliceEntity{Age: []int{1, 2, 3, 4, 5, 6, 7}}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 [1 2 3 4 5 6 7] 的数组长度没有命中只允许的范围 [2,6]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 [1 2 3 4 5 6 7] 的数组长度没有命中只允许的范围 [2, 6]", result, false)
 
 	//测试 异常情况
 	value = RangeSliceEntity{Age: []int{1}}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, err, "核查错误：属性 Age 值 [1] 的数组长度没有命中只允许的范围 [2,6]", result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 值 [1] 的数组长度没有命中只允许的范围 [2, 6]", result, false)
 }
 
 // 测试时间类型1

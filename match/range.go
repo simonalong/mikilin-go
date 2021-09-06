@@ -183,18 +183,42 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 				return
 			}
 		} else {
-			if constant.RIGHT_EQUAL == endAli {
-				script = "value <= end"
-			} else if constant.RIGHT_UN_EQUAL == endAli {
-				script = "value < end"
+			if beginNow {
+				if constant.LEFT_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+					script = "begin <= value && value <= end"
+				} else if constant.LEFT_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+					script = "begin <= value && value < end"
+				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+					script = "begin < value && value <= end"
+				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+					script = "begin < value && value < end"
+				}
+			} else {
+				if constant.RIGHT_EQUAL == endAli {
+					script = "value <= end"
+				} else if constant.RIGHT_UN_EQUAL == endAli {
+					script = "value < end"
+				}
 			}
 		}
 	} else {
 		if end == nil {
-			if constant.LEFT_EQUAL == beginAli {
-				script = "begin <= value"
-			} else if constant.LEFT_UN_EQUAL == beginAli {
-				script = "begin < value"
+			if endNow {
+				if constant.LEFT_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+					script = "begin <= value && value <= end"
+				} else if constant.LEFT_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+					script = "begin <= value && value < end"
+				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+					script = "begin < value && value <= end"
+				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+					script = "begin < value && value < end"
+				}
+			} else {
+				if constant.LEFT_EQUAL == beginAli {
+					script = "begin <= value"
+				} else if constant.LEFT_UN_EQUAL == beginAli {
+					script = "begin < value"
+				}
 			}
 		} else {
 			if constant.LEFT_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
@@ -265,15 +289,19 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 		} else {
 			var beginNow bool
 			var endNow bool
+			var beginTime time.Time
+			var endTime time.Time
 			if begin == constant.NOW {
 				beginNow = true
+			} else {
+				beginTime = util.ParseTime(begin)
 			}
 
 			if end == constant.NOW {
-				beginNow = true
+				endNow = true
+			} else {
+				endTime = util.ParseTime(end)
 			}
-			beginTime := util.ParseTime(begin)
-			endTime := util.ParseTime(end)
 
 			beginTimeIsEmpty := util.IsTimeEmpty(beginTime)
 			endTimeIsEmpty := util.IsTimeEmpty(endTime)
@@ -283,7 +311,7 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 					log.Errorf("时间的范围起始点不正确，起点时间不应该大于终点时间")
 					return nil
 				}
-				return &RangeEntity{beginAli: beginAli, begin: beginTime.UnixNano(), end: nil, endAli: endAli, dateFlag: true, beginNow: beginNow, endNow: endNow}
+				return &RangeEntity{beginAli: beginAli, begin: beginTime.UnixNano(), end: endTime.UnixNano(), endAli: endAli, dateFlag: true, beginNow: beginNow, endNow: endNow}
 			} else if beginTimeIsEmpty && endTimeIsEmpty {
 				log.Errorf("range 匹配器格式输入错误，解析数字或者日期失败, time: %v", subData)
 			} else {

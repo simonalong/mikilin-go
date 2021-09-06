@@ -42,6 +42,7 @@ func BuildValuesMatcher(objectTypeFullName string, fieldKind reflect.Kind, objec
 	value := subCondition[index+1:]
 
 	var availableValues []interface{}
+	value = strings.TrimSpace(value)
 	if strings.HasPrefix(value, "{") && strings.HasSuffix(value, "}") {
 		value = value[1 : len(value)-1]
 		for _, subValue := range strings.Split(value, ",") {

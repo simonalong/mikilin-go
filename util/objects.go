@@ -7,7 +7,12 @@ import (
 
 // IsCheckedKing 是否待核查的类型
 func IsCheckedKing(fieldType reflect.Type) bool {
-	switch fieldType.Kind() {
+	fieldKind := fieldType.Kind()
+	if fieldKind == reflect.Ptr {
+		fieldKind = fieldType.Elem().Kind()
+	}
+
+	switch fieldKind {
 	case reflect.Int:
 		return true
 	case reflect.Int8:
