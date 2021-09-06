@@ -51,6 +51,15 @@ type DynamicTimeNum struct {
 
 type Predicate func(subCondition string) bool
 
+// []：时间或者数字范围匹配
+var rangeRegex = regexp.MustCompile("^(\\(|\\[)(.*)(,|，)(\\s)*(.*)(\\)|\\])$")
+
+// digitRegex 全是数字匹配（整数，浮点数，0，负数）
+var digitRegex = regexp.MustCompile("^(0)|^[-+]?([1-9]+\\d*|0\\.(\\d*)|[1-9]\\d*\\.(\\d*))$")
+
+// 时间的前后计算匹配：(-|+)yMd(h|H)msS
+var timePlusRegex = regexp.MustCompile("^([-+])?(\\d*y)?(\\d*M)?(\\d*d)?(\\d*H|\\d*h)?(\\d*m)?(\\d*s)?$")
+
 func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	env := map[string]interface{}{
 		"begin": rangeMatch.Begin,
@@ -134,15 +143,6 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 func (rangeMatch *RangeMatch) IsEmpty() bool {
 	return rangeMatch.Script == ""
 }
-
-// []：时间或者数字范围匹配
-var rangeRegex = regexp.MustCompile("^(\\(|\\[)(.*)(,|，)(\\s)*(.*)(\\)|\\])$")
-
-// digitRegex 全是数字匹配（整数，浮点数，0，负数）
-var digitRegex = regexp.MustCompile("^(0)|^[-+]?([1-9]+\\d*|0\\.(\\d*)|[1-9]\\d*\\.(\\d*))$")
-
-// 时间的前后计算匹配：(-|+)yMd(h|H)msS
-var timePlusRegex = regexp.MustCompile("^([-+])?(\\d*y)?(\\d*M)?(\\d*d)?(\\d*H|\\d*h)?(\\d*m)?(\\d*s)?$")
 
 func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string) {
 	if !strings.Contains(subCondition, constant.RANGE) || !strings.Contains(subCondition, constant.EQUAL) {
