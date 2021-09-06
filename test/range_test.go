@@ -394,6 +394,11 @@ func TestRangeTime1(t *testing.T) {
 	value = RangeTimeEntity1{CreateTime: time.Date(2019, 7, 14, 12, 0, 23, 321, time.Local)}
 	result, err = mikilin.Check(value, "createTime")
 	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeTimeEntity1{CreateTime: time.Date(2019, 6, 14, 12, 0, 23, 321, time.Local)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 2019-06-14 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 [2019-07-13 12:00:23.321, 2019-08-23 12:00:23.321] 中", result, false)
 }
 
 // 压测进行基准测试

@@ -104,7 +104,7 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 				rangeMatch.SetWhiteMsg("属性 %v 值 %v 的数组长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
 			}
 		} else if field.Type.String() == "time.Time" {
-			rangeMatch.SetBlackMsg("属性 %v 时间 %v 的数组长度没有命中只允许的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
+			rangeMatch.SetWhiteMsg("属性 %v 时间 %v 没有命中只允许的时间段 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
 		} else {
 			// todo
 		}
@@ -120,7 +120,7 @@ func (rangeMatch *RangeMatch) IsEmpty() bool {
 var rangeRegex = regexp.MustCompile("^(\\(|\\[)(.*)(,|，)(\\s)*(.*)(\\)|\\])$")
 
 // digitRegex 全是数字匹配（整数，浮点数，0，负数）
-var digitRegex = regexp.MustCompile("^[-+]?(0)|([1-9]+\\d*|0\\.(\\d*)|[1-9]\\d*\\.(\\d*))$")
+var digitRegex = regexp.MustCompile("^(0)|^[-+]?([1-9]+\\d*|0\\.(\\d*)|[1-9]\\d*\\.(\\d*))$")
 
 // 时间的前后计算匹配：(-|+)yMd(h|H)msS
 var timePlusRegex = regexp.MustCompile("^([-+])?(\\d*y)?(\\d*M)?(\\d*d)?(\\d*H|\\d*h)?(\\d*m)?(\\d*s)?$")

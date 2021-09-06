@@ -22,7 +22,7 @@ var ymdTime = "2006-01-02"
 var ymdHTime = "2006-01-02 15"
 var ymdHmTime = "2006-01-02 15:04"
 var ymdHmsTime = "2006-01-02 15:04:05"
-var ymdHmsSTime = "2006-01-02 15:04:05.23123"
+var ymdHmsSTime = "2006-01-02 15:04:05.000"
 
 var emptyTime = time.Time{}
 
@@ -58,32 +58,46 @@ func ParseTime(timeStr string) time.Time {
 		return time.Now()
 	}
 	if yRegex.MatchString(timeStr) {
-		if times, err := time.Parse(yTime, timeStr); err != nil {
+		if times, err := time.Parse(yTime, timeStr); err == nil {
 			return times
+		} else {
+			log.Errorf("解析时间错误, err: %v", err)
 		}
 	} else if ymRegex.MatchString(timeStr) {
-		if times, err := time.Parse(ymTime, timeStr); err != nil {
+		if times, err := time.Parse(ymTime, timeStr); err == nil {
 			return times
+		} else {
+			log.Errorf("解析时间错误, err: %v", err)
 		}
 	} else if ymdRegex.MatchString(timeStr) {
-		if times, err := time.Parse(ymdTime, timeStr); err != nil {
+		if times, err := time.Parse(ymdTime, timeStr); err == nil {
 			return times
+		} else {
+			log.Errorf("解析时间错误, err: %v", err)
 		}
 	} else if ymdHRegex.MatchString(timeStr) {
-		if times, err := time.Parse(ymdHTime, timeStr); err != nil {
+		if times, err := time.Parse(ymdHTime, timeStr); err == nil {
 			return times
+		} else {
+			log.Errorf("解析时间错误, err: %v", err)
 		}
 	} else if ymdHmRegex.MatchString(timeStr) {
-		if times, err := time.Parse(ymdHmTime, timeStr); err != nil {
+		if times, err := time.Parse(ymdHmTime, timeStr); err == nil {
 			return times
+		} else {
+			log.Errorf("解析时间错误, err: %v", err)
 		}
 	} else if ymdHmsRegex.MatchString(timeStr) {
-		if times, err := time.Parse(ymdHmsTime, timeStr); err != nil {
+		if times, err := time.Parse(ymdHmsTime, timeStr); err == nil {
 			return times
+		} else {
+			log.Errorf("解析时间错误, err: %v", err)
 		}
 	} else if ymdHmsSRegex.MatchString(timeStr) {
-		if times, err := time.Parse(ymdHmsSTime, timeStr); err != nil {
+		if times, err := time.Parse(ymdHmsSTime, timeStr); err == nil {
 			return times
+		} else {
+			log.Errorf("解析时间错误, err: %v", err)
 		}
 	} else {
 		log.Errorf("解析时间错误, time: %v", timeStr)
