@@ -103,10 +103,46 @@ type RangeTimeEntity6 struct {
 	CreateTime time.Time `match:"range=future"`
 }
 
-// 时间计算
-type RangeTimeCalEntity struct {
+// 时间计算：年
+type RangeTimeCalEntity1 struct {
 	Name       string
-	CreateTime time.Time `match:"range=+1h"`
+	CreateTime time.Time `match:"range=(-1y, )"`
+}
+
+// 时间计算：月
+type RangeTimeCalEntity2 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(-1M, )"`
+}
+
+// 时间计算：日
+type RangeTimeCalEntity3 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(-3d, )"`
+}
+
+// 时间计算：时
+type RangeTimeCalEntity4 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(-4h, )"`
+}
+
+// 时间计算：分
+type RangeTimeCalEntity5 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(-12m, )"`
+}
+
+// 时间计算：秒
+type RangeTimeCalEntity6 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(-120s, )"`
+}
+
+// 时间计算：正负号
+type RangeTimeCalEntity7 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(2h, )"`
 }
 
 // 测试整数类型1
@@ -499,6 +535,170 @@ func TestRangeTime6(t *testing.T) {
 	value = RangeTimeEntity6{CreateTime: time.Date(1918, 7, 24, 12, 0, 23, 321, time.Local)}
 	result, err = mikilin.Check(value, "createTime")
 	assert.Equal(t, err, "核查错误：属性 CreateTime 时间 1918-07-24 12:00:23.000000321 +0800 CST 没有命中只允许的时间段 future 中", result, false)
+}
+
+// 测试时间计算：年
+func TestRangeCalTime1(t *testing.T) {
+	var value RangeTimeCalEntity1
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeCalEntity1{CreateTime: time.Now().AddDate(0, -3, 0)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeCalEntity1{CreateTime: time.Now().AddDate(-2, 0, 0)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：月
+func TestRangeCalTime2(t *testing.T) {
+	var value RangeTimeCalEntity2
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeCalEntity2{CreateTime: time.Now().AddDate(0, 0, -2)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeTimeCalEntity2{CreateTime: time.Now().AddDate(0, 0, 1)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeCalEntity2{CreateTime: time.Now().AddDate(0, -2, 0)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：日
+func TestRangeCalTime3(t *testing.T) {
+	var value RangeTimeCalEntity3
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeCalEntity3{CreateTime: time.Now().AddDate(0, 0, -2)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeTimeCalEntity3{CreateTime: time.Now().AddDate(0, 0, 1)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeCalEntity3{CreateTime: time.Now().AddDate(0, 0, -6)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：时
+func TestRangeCalTime4(t *testing.T) {
+	var value RangeTimeCalEntity4
+	var result bool
+	var err string
+
+	//测试 正常情况
+	d, _ := time.ParseDuration("-1h")
+	value = RangeTimeCalEntity4{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	d, _ = time.ParseDuration("4h")
+	value = RangeTimeCalEntity4{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	d, _ = time.ParseDuration("-6h")
+	value = RangeTimeCalEntity4{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：分钟
+func TestRangeCalTime5(t *testing.T) {
+	var value RangeTimeCalEntity5
+	var result bool
+	var err string
+	var d time.Duration
+
+	//测试 正常情况
+	d, _ = time.ParseDuration("-10m")
+	value = RangeTimeCalEntity5{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	d, _ = time.ParseDuration("4m")
+	value = RangeTimeCalEntity5{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	d, _ = time.ParseDuration("-20m")
+	value = RangeTimeCalEntity5{CreateTime: time.Now().Add(d)}
+	result, _ = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：秒
+func TestRangeCalTime6(t *testing.T) {
+	var value RangeTimeCalEntity6
+	var result bool
+	var err string
+	var d time.Duration
+
+	//测试 正常情况
+	d, _ = time.ParseDuration("-10s")
+	value = RangeTimeCalEntity6{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	d, _ = time.ParseDuration("4s")
+	value = RangeTimeCalEntity6{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	d, _ = time.ParseDuration("-200s")
+	value = RangeTimeCalEntity6{CreateTime: time.Now().Add(d)}
+	result, _ = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：秒
+func TestRangeCalTime7(t *testing.T) {
+	var value RangeTimeCalEntity7
+	var result bool
+	var err string
+	var d time.Duration
+
+	//测试 正常情况
+	d, _ = time.ParseDuration("10h")
+	value = RangeTimeCalEntity7{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	d, _ = time.ParseDuration("+3h")
+	value = RangeTimeCalEntity7{CreateTime: time.Now().Add(d)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	d, _ = time.ParseDuration("-5h")
+	value = RangeTimeCalEntity7{CreateTime: time.Now().Add(d)}
+	result, _ = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
 }
 
 // 压测进行基准测试

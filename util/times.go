@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
@@ -23,18 +24,21 @@ var ymdHmTime = "2006-01-02 15:04"
 var ymdHmsTime = "2006-01-02 15:04:05"
 var ymdHmsSTime = "2006-01-02 15:04:05.000"
 
-var emptyTime = time.Time{}
+var EmptyTime = time.Time{}
 
-func AddSeconds(times time.Time, seconds time.Duration) time.Time {
-	return times.Add(seconds * time.Second)
+func AddHour(times time.Time, plusOrMinus string, seconds string) time.Time {
+	h, _ := time.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, seconds))
+	return times.Add(h)
 }
 
-func AddMinutes(times time.Time, minutes time.Duration) time.Time {
-	return times.Add(minutes * time.Minute)
+func AddMinutes(times time.Time, plusOrMinus string, minutes string) time.Time {
+	h, _ := time.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, minutes))
+	return times.Add(h)
 }
 
-func AddHour(times time.Time, hours time.Duration) time.Time {
-	return times.Add(hours * time.Hour)
+func AddSeconds(times time.Time, plusOrMinus string, hours string) time.Time {
+	h, _ := time.ParseDuration(fmt.Sprintf("%s%v", plusOrMinus, hours))
+	return times.Add(h)
 }
 
 func AddDays(times time.Time, days int) time.Time {
@@ -54,7 +58,7 @@ func ParseTime(timeStr string) time.Time {
 	timeStr = strings.TrimSpace(strings.ReplaceAll(timeStr, "\\'", " "))
 
 	if timeStr == "" {
-		return emptyTime
+		return EmptyTime
 	}
 	if yRegex.MatchString(timeStr) {
 		if times, err := time.Parse(yTime, timeStr); err == nil {
@@ -101,11 +105,11 @@ func ParseTime(timeStr string) time.Time {
 	} else {
 		log.Errorf("解析时间错误, time: %v", timeStr)
 	}
-	return emptyTime
+	return EmptyTime
 }
 
 func IsTimeEmpty(time time.Time) bool {
-	if time == emptyTime {
+	if time == EmptyTime {
 		return true
 	}
 	return false

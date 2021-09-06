@@ -39,6 +39,16 @@ type RangeEntity struct {
 	endNow      bool
 }
 
+type DynamicTimeNum struct {
+	plusOrMinus bool
+	years       int
+	months      int
+	days        int
+	hours       int
+	minutes     int
+	seconds     int
+}
+
 type Predicate func(subCondition string) bool
 
 func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
@@ -215,7 +225,7 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 }
 
 func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
-	subData := rangeRegex.FindAllStringSubmatch(subCondition, 1)
+	subData := rangeRegex.FindAllStringSubmatch(subCondition, -1)
 	if len(subData) > 0 {
 		beginAli := subData[0][1]
 		begin := subData[0][2]
@@ -238,7 +248,20 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 			// todo 添加begin要小于end的校验
 			return &RangeEntity{beginAli: beginAli, begin: parseNum(fieldKind, begin), end: parseNum(fieldKind, end), endAli: endAli, dateFlag: true}
 		} else if (begin != "" && timePlusRegex.MatchString(begin)) || (end != "" && timePlusRegex.MatchString(end)) {
-			// 解析动态时间 todo
+			// 解析动态时间
+			dynamicBegin := parseDynamicTime(begin)
+			dynamicEnd := parseDynamicTime(end)
+			if dynamicBegin == util.EmptyTime && dynamicEnd == util.EmptyTime {
+				return nil
+			}
+
+			if dynamicBegin == util.EmptyTime {
+				return &RangeEntity{beginAli: beginAli, begin: nil, end: dynamicEnd.UnixNano(), endAli: endAli, dateFlag: true}
+			} else if dynamicEnd == util.EmptyTime {
+				return &RangeEntity{beginAli: beginAli, begin: dynamicBegin.UnixNano(), end: nil, endAli: endAli, dateFlag: true}
+			} else {
+				return &RangeEntity{beginAli: beginAli, begin: dynamicBegin.UnixNano(), end: dynamicEnd.UnixNano(), endAli: endAli, dateFlag: true}
+			}
 		} else {
 			var beginNow bool
 			var endNow bool
@@ -303,4 +326,45 @@ func parseNum(fieldKind reflect.Kind, valueStr string) interface{} {
 	} else {
 		return nil
 	}
+}
+
+func parseDynamicTime(valueStr string) time.Time {
+	valueStr = strings.TrimSpace(valueStr)
+	if valueStr == "" {
+		return util.EmptyTime
+	}
+	subData := timePlusRegex.FindAllStringSubmatch(valueStr, -1)
+	if len(subData) > 0 {
+		plusOrMinus := subData[0][1]
+		var years, months, days int
+		yearStr := subData[0][2]
+		monthStr := subData[0][3]
+		dayStr := subData[0][4]
+		if yearStr != "" {
+			yearStr = yearStr[:len(yearStr)-1]
+		}
+		if monthStr != "" {
+			monthStr = monthStr[:len(monthStr)-1]
+		}
+		if dayStr != "" {
+			dayStr = dayStr[:len(dayStr)-1]
+		}
+		years, _ = strconv.Atoi(fmt.Sprintf("%v%v", plusOrMinus, yearStr))
+		months, _ = strconv.Atoi(fmt.Sprintf("%v%v", plusOrMinus, monthStr))
+		days, _ = strconv.Atoi(fmt.Sprintf("%v%v", plusOrMinus, dayStr))
+
+		hours := subData[0][5]
+		minutes := subData[0][6]
+		seconds := subData[0][7]
+
+		resultTime := util.AddYears(time.Now(), years)
+		resultTime = util.AddMonths(resultTime, months)
+		resultTime = util.AddDays(resultTime, days)
+		resultTime = util.AddHour(resultTime, plusOrMinus, hours)
+		resultTime = util.AddMinutes(resultTime, plusOrMinus, minutes)
+		resultTime = util.AddSeconds(resultTime, plusOrMinus, seconds)
+
+		return resultTime
+	}
+	return util.EmptyTime
 }
