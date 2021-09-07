@@ -49,8 +49,8 @@ func IsCheckedKing(fieldType reflect.Type) bool {
 	}
 }
 
-// IsNumber 是否数字类型
-func IsNumber(fieldKing reflect.Kind) bool {
+// IsCheckNumber 是否数字类型
+func IsCheckNumber(fieldKing reflect.Kind) bool {
 	switch fieldKing {
 	case reflect.Int:
 		return true

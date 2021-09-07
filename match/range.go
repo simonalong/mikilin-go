@@ -67,7 +67,7 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 	}
 
 	fieldKind := field.Type.Kind()
-	if util.IsNumber(fieldKind) {
+	if util.IsCheckNumber(fieldKind) {
 		env["value"] = fieldValue
 	} else if fieldKind == reflect.String {
 		env["value"] = len(fmt.Sprintf("%v", fieldValue))
@@ -81,7 +81,7 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 			env["end"] = time.Now().UnixNano()
 		}
 	} else {
-		// todo
+		return true
 	}
 
 	output, err := expr.Run(rangeMatch.Program, env)
@@ -102,7 +102,7 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 			} else {
 				rangeMatch.SetBlackMsg("属性 %v 值 %v 的字符串长度位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
 			}
-		} else if util.IsNumber(field.Type.Kind()) {
+		} else if util.IsCheckNumber(field.Type.Kind()) {
 			rangeMatch.SetBlackMsg("属性 %v 值 %v 位于禁用的范围 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
 		} else if field.Type.Kind() == reflect.Slice {
 			if reflect.ValueOf(fieldValue).Len() > 1024 {
@@ -113,7 +113,7 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 		} else if field.Type.String() == "time.Time" {
 			rangeMatch.SetBlackMsg("属性 %v 时间 %v 位于禁用时间段 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
 		} else {
-			// todo
+			return true
 		}
 		return true
 	} else {
@@ -123,7 +123,7 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 			} else {
 				rangeMatch.SetWhiteMsg("属性 %v 值 %v 的长度没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
 			}
-		} else if util.IsNumber(field.Type.Kind()) {
+		} else if util.IsCheckNumber(field.Type.Kind()) {
 			rangeMatch.SetWhiteMsg("属性 %v 值 %v 没有命中只允许的范围 %v", field.Name, fieldValue, rangeMatch.RangeExpress)
 		} else if field.Type.Kind() == reflect.Slice {
 			if reflect.ValueOf(fieldValue).Len() > 1024 {
@@ -134,7 +134,7 @@ func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructFiel
 		} else if field.Type.String() == "time.Time" {
 			rangeMatch.SetWhiteMsg("属性 %v 时间 %v 没有命中只允许的时间段 %v 中", field.Name, fieldValue, rangeMatch.RangeExpress)
 		} else {
-			// todo
+			return true
 		}
 		return false
 	}
@@ -269,8 +269,11 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 
 		// 如果是数字，则按照数字解析
 		if (begin != "" && digitRegex.MatchString(begin)) || (end != "" && digitRegex.MatchString(end)) {
-			// todo 添加begin要小于end的校验
-			return &RangeEntity{beginAli: beginAli, begin: parseNum(fieldKind, begin), end: parseNum(fieldKind, end), endAli: endAli, dateFlag: true}
+			beginNum := parseNum(fieldKind, begin)
+			endNum := parseNum(fieldKind, end)
+
+			// todo 核查beginNum和endNum
+			return &RangeEntity{beginAli: beginAli, begin: beginNum, end: endNum, endAli: endAli, dateFlag: true}
 		} else if (begin != "" && timePlusRegex.MatchString(begin)) || (end != "" && timePlusRegex.MatchString(end)) {
 			// 解析动态时间
 			dynamicBegin := parseDynamicTime(begin)
@@ -339,7 +342,7 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 }
 
 func parseNum(fieldKind reflect.Kind, valueStr string) interface{} {
-	if util.IsNumber(fieldKind) {
+	if util.IsCheckNumber(fieldKind) {
 		result, err := util.Cast(fieldKind, valueStr)
 		if err != nil {
 			return nil
