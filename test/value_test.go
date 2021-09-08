@@ -12,7 +12,7 @@ type ValueBaseEntity struct {
 }
 
 type ValueBaseEntityOne struct {
-	Name string `match:"value={zhou, 宋江}"`
+	Name string `match:"value=zhou"`
 	Age  int    `match:"value=12"`
 }
 
@@ -91,7 +91,17 @@ func TestValueBase2(t *testing.T) {
 	// 测试 正常情况
 	value = ValueBaseEntityOne{Age: 13}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, "核查错误：属性 Age 的值 13 不在只可用列表 [12] 中", err, result, false)
+	assert.Equal(t, err, "核查错误：属性 Age 的值 13 不在只可用列表 [12] 中", result, false)
+
+	//测试 正常情况
+	value = ValueBaseEntityOne{Name: "zhou"}
+	result, err = mikilin.Check(value, "name")
+	assert.TrueErr(t, result, err)
+
+	// 测试 正常情况
+	value = ValueBaseEntityOne{Name: "宋江"}
+	result, err = mikilin.Check(value, "name")
+	assert.Equal(t, err, "核查错误：属性 Name 的值 宋江 不在只可用列表 [zhou] 中", result, false)
 }
 
 // 测试基本类型：多个值的情况
@@ -113,7 +123,7 @@ func TestValueBase(t *testing.T) {
 	// 测试 异常情况
 	value = ValueBaseEntity{Age: 14}
 	result, err = mikilin.Check(value, "age")
-	assert.Equal(t, "核查错误：属性 Age 的值 14 不在只可用列表 [12 13] 中", err, false, result)
+	assert.Equal(t, err, "核查错误：属性 Age 的值 14 不在只可用列表 [12 13] 中", false, result)
 
 	// 测试 正常情况
 	value = ValueBaseEntity{Name: "zhou"}
@@ -128,7 +138,7 @@ func TestValueBase(t *testing.T) {
 	// 测试 异常情况
 	value = ValueBaseEntity{Name: "陈真"}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, "核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中", err, false, result)
+	assert.Equal(t, err, "核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中", false, result)
 }
 
 // 测试基本类型：指针类型
@@ -209,7 +219,7 @@ func TestValueStruct(t *testing.T) {
 		Name: "inner_宋江",
 	}}
 	result, err = mikilin.Check(value, "inner")
-	assert.Equal(t, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", err, false, result)
+	assert.Equal(t, err, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", false, result)
 }
 
 // 测试Struct类型：指针类型
@@ -404,7 +414,7 @@ func TestValueArray(t *testing.T) {
 	innerArray[2] = ValueInnerEntity{Age: 2214, Name: "inner_宋江"}
 	value.Inner = innerArray
 	result, err = mikilin.Check(value, "inner")
-	assert.Equal(t, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", err, false, result)
+	assert.Equal(t, err, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", false, result)
 }
 
 // 测试Array：指针类型
@@ -431,7 +441,7 @@ func TestValueArrayPtr(t *testing.T) {
 	innerArray[2] = &ValueInnerEntity{Age: 2214, Name: "inner_宋江"}
 	value.Inner = innerArray
 	result, err = mikilin.Check(value, "inner")
-	assert.Equal(t, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", err, false, result)
+	assert.Equal(t, err, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", false, result)
 }
 
 // 测试 Slice
@@ -459,7 +469,7 @@ func TestValueSlice(t *testing.T) {
 	value.Inner = innerSlice
 
 	result, err = mikilin.Check(value, "inner")
-	assert.Equal(t, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", err, false, result)
+	assert.Equal(t, err, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", false, result)
 }
 
 // 测试 Slice：指针类型
@@ -486,7 +496,7 @@ func TestValueSlicePtr(t *testing.T) {
 	innerSlice = append(innerSlice, &ValueInnerEntity{Age: 2214, Name: "inner_宋江"})
 	value.Inner = innerSlice
 	result, err = mikilin.Check(value, "inner")
-	assert.Equal(t, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", err, false, result)
+	assert.Equal(t, err, "核查错误：属性 Age 的值 2214 不在只可用列表 [2212 2213] 中", false, result)
 }
 
 // value的基准测试

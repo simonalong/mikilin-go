@@ -13,7 +13,7 @@ import (
 
 var lock sync.Mutex
 
-type MatchCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, subCondition string)
+type MatchCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string)
 
 type CollectorEntity struct {
 	name         string
@@ -201,13 +201,24 @@ func doCollectCollector(objType reflect.Type) {
 
 		// 基本类型
 		if util.IsCheckedKing(field.Type) {
+			// match
 			tagMatch := field.Tag.Get(constant.MATCH)
 			if len(tagMatch) == 0 {
 				continue
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				collectChecker(objectFullName, fieldKind, field.Name, tagMatch)
+				addMatcher(objectFullName, fieldKind, field.Name, tagMatch)
+			}
+
+			// accept
+			tagAccept := field.Tag.Get(constant.ACCEPT)
+			if len(tagMatch) == 0 {
+				continue
+			}
+
+			if _, contain := matcher.MatchMap[objectFullName][field.Name]; contain {
+				addCollector(objectFullName, fieldKind, field.Name, constant.ACCEPT, tagAccept)
 			}
 		} else if fieldKind == reflect.Struct {
 			// struct 结构类型
@@ -225,14 +236,26 @@ func doCollectCollector(objType reflect.Type) {
 			// Array 结构
 			doCollectCollector(field.Type.Elem())
 		} else if fieldKind == reflect.Slice {
-			// Slice 结构，先将该切片对应的size也可以进行测试
+			// Slice 结构
+
+			// match
 			tagMatch := field.Tag.Get(constant.MATCH)
 			if len(tagMatch) == 0 {
 				continue
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				collectChecker(objectFullName, fieldKind, field.Name, tagMatch)
+				addMatcher(objectFullName, fieldKind, field.Name, tagMatch)
+			}
+
+			// accept
+			tagAccept := field.Tag.Get(constant.ACCEPT)
+			if len(tagMatch) == 0 {
+				continue
+			}
+
+			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
+				addCollector(objectFullName, fieldKind, field.Name, constant.ACCEPT, tagAccept)
 			}
 
 			doCollectCollector(field.Type.Elem())
@@ -261,7 +284,7 @@ func isSelectField(fieldName string, fieldNames ...string) bool {
 }
 
 // 搜集处理器，对于有一些空格的也进行单独处理
-func collectChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
+func addMatcher(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
 	var subStrIndexes []int
 	for _, tag := range matchTagArray {
 		index := strings.Index(matchJudge, tag)
@@ -277,17 +300,22 @@ func collectChecker(objectFullName string, fieldKind reflect.Kind, fieldName str
 			continue
 		}
 		subJudgeStr := matchJudge[lastIndex:subIndex]
-		buildChecker(objectFullName, fieldKind, fieldName, subJudgeStr)
+		buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr)
 		lastIndex = subIndex
 	}
 
 	subJudgeStr := matchJudge[lastIndex:]
-	buildChecker(objectFullName, fieldKind, fieldName, subJudgeStr)
+	buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr)
 }
 
-func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, subStr string) {
+// 添加搜集器
+func addCollector(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, matchJudge string) {
+	buildChecker(objectFullName, fieldKind, fieldName, tagName, matchJudge)
+}
+
+func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, subStr string) {
 	for _, entity := range checkerEntities {
-		entity.infCollector(objectFullName, fieldKind, fieldName, subStr)
+		entity.infCollector(objectFullName, fieldKind, fieldName, tagName, subStr)
 	}
 }
 
@@ -329,11 +357,11 @@ func judgeMatch(matchers []*matcher.Matcher, object interface{}, field reflect.S
 		matchResult := (*match).Match(object, field, fieldValue)
 		if matchResult {
 			if !accept {
-				errMsgArray = append(errMsgArray, (*match).GetWhitMsg())
+				errMsgArray = append(errMsgArray, (*match).GetBlackMsg())
 			} else {
 				errMsgArray = []string{}
 			}
-			return true, ""
+			return true, util.ArraysToString(errMsgArray)
 		} else {
 			if accept {
 				errMsgArray = append(errMsgArray, (*match).GetWhitMsg())
@@ -348,7 +376,7 @@ func init() {
 	/* 搜集匹配后的操作参数 */
 	//checkerEntities = append(checkerEntities, CollectorEntity{ERR_MSG, collectErrMsg})
 	//checkerEntities = append(checkerEntities, CollectorEntity{CHANGE_TO, collectChangeTo})
-	//checkerEntities = append(checkerEntities, CollectorEntity{ACCEPT, collectAccept})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.ACCEPT, matcher.CollectAccept})
 	//checkerEntities = append(checkerEntities, CollectorEntity{DISABLE, collectDisable})
 
 	/* 搜集匹配器 */

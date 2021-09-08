@@ -21,7 +21,7 @@ const (
 const (
 	ERR_MSG   = "errMsg"
 	CHANGE_TO = "changeTo"
-	ACCEPT    = "Accept"
+	ACCEPT    = "accept"
 	DISABLE   = "disable"
 )
 

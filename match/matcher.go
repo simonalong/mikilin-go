@@ -25,5 +25,5 @@ type FieldMatcher struct {
 	Matchers []*Matcher
 }
 
-/* key：类全名，value：key：属性名 */
+// MatchMap key：类全名，value：key：属性名
 var MatchMap = make(map[string]map[string]*FieldMatcher)
