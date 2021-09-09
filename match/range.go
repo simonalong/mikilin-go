@@ -245,7 +245,7 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 
 	program, err := compiler.Compile(tree, nil)
 	if err != nil {
-		log.Errorf("脚本: %v 编译异常：%v", err.Error())
+		log.Errorf("脚本: %v 编译异常：%v", script, err.Error())
 		return
 	}
 

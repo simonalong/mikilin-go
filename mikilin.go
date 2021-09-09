@@ -384,8 +384,7 @@ func init() {
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.IsBlank, matcher.BuildIsBlankMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.RANGE, matcher.BuildRangeMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.MODEL, matcher.BuildModelMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{ENUM_TYPE, buildEnumTypeMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{CONDITION, buildConditionMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.CONDITION, matcher.BuildConditionMatcher})
 	//checkerEntities = append(checkerEntities, CollectorEntity{CUSTOMIZE, buildCustomizeMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.REGEX, matcher.BuildRegexMatcher})
 }
