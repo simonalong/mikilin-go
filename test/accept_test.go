@@ -21,6 +21,11 @@ type AcceptEntity3 struct {
 	Age  int
 }
 
+type AcceptEntity4 struct {
+	Name string `match:"isBlank=true value=zhou" accept:"false"`
+	Age  int
+}
+
 func TestAccept1(t *testing.T) {
 	var value AcceptEntity1
 	var result bool
@@ -68,8 +73,29 @@ func TestAccept3(t *testing.T) {
 	result, err = mikilin.Check(value, "name")
 	assert.TrueErr(t, result, err)
 
-	// 测试 正常情况
+	// 测试 异常情况
 	value = AcceptEntity3{Name: "宋江"}
 	result, err = mikilin.Check(value, "name")
 	assert.Equal(t, err, "[\"核查错误：属性 Name 的值为非空字符\",\"核查错误：属性 Name 的值 宋江 不在只可用列表 [zhou] 中\"]", result, false)
+}
+
+func TestAccept4(t *testing.T) {
+	var value AcceptEntity4
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = AcceptEntity4{Name: "宋江"}
+	result, err = mikilin.Check(value, "name")
+	assert.TrueErr(t, result, err)
+
+	// 测试 异常情况
+	value = AcceptEntity4{Name: ""}
+	result, err = mikilin.Check(value, "name")
+	assert.Equal(t, err, "核查错误：属性 Name 的值为空字符", result, false)
+
+	// 测试 异常情况
+	value = AcceptEntity4{Name: "zhou"}
+	result, err = mikilin.Check(value, "name")
+	assert.Equal(t, err, "核查错误：属性 Name 的值 zhou 位于禁用值 [zhou] 中", result, false)
 }
