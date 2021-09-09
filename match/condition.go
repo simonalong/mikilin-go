@@ -58,7 +58,7 @@ func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 	if fieldKind == reflect.Slice {
 		return
 	}
-	if !strings.Contains(subCondition, constant.CONDITION) || !strings.Contains(subCondition, constant.EQUAL) {
+	if !strings.Contains(subCondition, constant.Condition) || !strings.Contains(subCondition, constant.EQUAL) {
 		return
 	}
 

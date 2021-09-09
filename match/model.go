@@ -64,7 +64,7 @@ func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 		return
 	}
 
-	if !strings.Contains(subCondition, constant.MODEL) || !strings.Contains(subCondition, constant.EQUAL) {
+	if !strings.Contains(subCondition, constant.Model) || !strings.Contains(subCondition, constant.EQUAL) {
 		return
 	}
 
@@ -72,12 +72,12 @@ func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	modelKey := strings.TrimSpace(subCondition[index+1:])
 
 	pReg, contain := modelMap[modelKey]
-	if !contain && modelKey != constant.ID_CARD {
+	if !contain && modelKey != constant.IdCard {
 		log.Errorf("不包含模式%v", modelKey)
 		return
 	}
 
-	if modelKey == constant.ID_CARD {
+	if modelKey == constant.IdCard {
 		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: true, modelName: modelKey}, true)
 	} else {
 		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: false, modelName: modelKey}, true)
@@ -87,11 +87,11 @@ func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 func init() {
 	// 手机号
 	pReg, _ := regexp.Compile("^(?:\\+?86)?1(?:3\\d{3}|5[^4\\D]\\d{2}|8\\d{3}|7(?:[35678]\\d{2}|4(?:0\\d|1[0-2]|9\\d))|9[189]\\d{2}|66\\d{2})\\d{6}$")
-	modelMap[constant.PHONE] = pReg
+	modelMap[constant.Phone] = pReg
 
 	// 固定电话
 	pReg, _ = regexp.Compile("^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)(\\d{7,8})(-(\\d{3,}))?$")
-	modelMap[constant.FIXED_PHONE] = pReg
+	modelMap[constant.FixedPhone] = pReg
 
 	// 邮箱
 	pReg, _ = regexp.Compile("^([\\w-_]+(?:\\.[\\w-_]+)*)@[\\w-]+(.[\\w_-]+)+")
@@ -99,5 +99,5 @@ func init() {
 
 	// IP地址
 	pReg, _ = regexp.Compile("^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$")
-	modelMap[constant.IP_ADDRESS] = pReg
+	modelMap[constant.IpAddress] = pReg
 }

@@ -38,7 +38,7 @@ func BuildValuesMatcher(objectTypeFullName string, fieldKind reflect.Kind, objec
 	if fieldKind == reflect.Slice {
 		return
 	}
-	if !strings.Contains(subCondition, constant.VALUE) || !strings.Contains(subCondition, constant.EQUAL) {
+	if !strings.Contains(subCondition, constant.Value) || !strings.Contains(subCondition, constant.EQUAL) {
 		return
 	}
 

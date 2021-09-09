@@ -28,10 +28,10 @@ type CheckResult struct {
 var checkerEntities []CollectorEntity
 
 /* 核查的标签 */
-var matchTagArray = []string{constant.VALUE, constant.IsBlank, constant.RANGE, constant.MODEL, constant.CONDITION, constant.REGEX, constant.CUSTOMIZE}
+var matchTagArray = []string{constant.Value, constant.IsBlank, constant.Range, constant.Model, constant.Condition, constant.Regex, constant.Customize}
 
 /* 匹配后处理的标签 */
-var handleTagArray = []string{constant.ERR_MSG, constant.CHANGE_TO, constant.ACCEPT, constant.DISABLE}
+var handleTagArray = []string{constant.ErrMsg, constant.ChangeTo, constant.Accept, constant.Disable}
 
 func Check(object interface{}, fieldNames ...string) (bool, string) {
 	if object == nil {
@@ -212,13 +212,13 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			// accept
-			tagAccept := field.Tag.Get(constant.ACCEPT)
+			tagAccept := field.Tag.Get(constant.Accept)
 			if len(tagMatch) == 0 {
 				continue
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; contain {
-				addCollector(objectFullName, fieldKind, field.Name, constant.ACCEPT, tagAccept)
+				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept)
 			}
 		} else if fieldKind == reflect.Struct {
 			// struct 结构类型
@@ -249,13 +249,13 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			// accept
-			tagAccept := field.Tag.Get(constant.ACCEPT)
+			tagAccept := field.Tag.Get(constant.Accept)
 			if len(tagMatch) == 0 {
 				continue
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				addCollector(objectFullName, fieldKind, field.Name, constant.ACCEPT, tagAccept)
+				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept)
 			}
 
 			doCollectCollector(field.Type.Elem())
@@ -374,17 +374,17 @@ func judgeMatch(matchers []*matcher.Matcher, object interface{}, field reflect.S
 // 包的初始回调
 func init() {
 	/* 搜集匹配后的操作参数 */
-	//checkerEntities = append(checkerEntities, CollectorEntity{ERR_MSG, collectErrMsg})
-	//checkerEntities = append(checkerEntities, CollectorEntity{CHANGE_TO, collectChangeTo})
-	checkerEntities = append(checkerEntities, CollectorEntity{constant.ACCEPT, matcher.CollectAccept})
-	//checkerEntities = append(checkerEntities, CollectorEntity{DISABLE, collectDisable})
+	//checkerEntities = append(checkerEntities, CollectorEntity{ErrMsg, collectErrMsg})
+	//checkerEntities = append(checkerEntities, CollectorEntity{ChangeTo, collectChangeTo})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.Accept, matcher.CollectAccept})
+	//checkerEntities = append(checkerEntities, CollectorEntity{Disable, collectDisable})
 
 	/* 搜集匹配器 */
-	checkerEntities = append(checkerEntities, CollectorEntity{constant.VALUE, matcher.BuildValuesMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.Value, matcher.BuildValuesMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.IsBlank, matcher.BuildIsBlankMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{constant.RANGE, matcher.BuildRangeMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{constant.MODEL, matcher.BuildModelMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{constant.CONDITION, matcher.BuildConditionMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{CUSTOMIZE, buildCustomizeMatcher})
-	checkerEntities = append(checkerEntities, CollectorEntity{constant.REGEX, matcher.BuildRegexMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.Range, matcher.BuildRangeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.Model, matcher.BuildModelMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.Condition, matcher.BuildConditionMatcher})
+	//checkerEntities = append(checkerEntities, CollectorEntity{Customize, buildCustomizeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.Regex, matcher.BuildRegexMatcher})
 }

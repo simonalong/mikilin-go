@@ -149,7 +149,7 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 		return
 	}
 
-	if !strings.Contains(subCondition, constant.RANGE) || !strings.Contains(subCondition, constant.EQUAL) {
+	if !strings.Contains(subCondition, constant.Range) || !strings.Contains(subCondition, constant.EQUAL) {
 		return
 	}
 
@@ -172,15 +172,15 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	if begin == nil {
 		if end == nil {
 			if beginNow {
-				if constant.LEFT_EQUAL == beginAli {
+				if constant.LeftEqual == beginAli {
 					script = "begin <= value"
-				} else if constant.LEFT_UN_EQUAL == beginAli {
+				} else if constant.LeftUnEqual == beginAli {
 					script = "begin < value"
 				}
 			} else if endNow {
-				if constant.RIGHT_EQUAL == endAli {
+				if constant.RightEqual == endAli {
 					script = "value <= end"
-				} else if constant.RIGHT_UN_EQUAL == endAli {
+				} else if constant.RightUnEqual == endAli {
 					script = "value < end"
 				}
 			} else {
@@ -188,19 +188,19 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 			}
 		} else {
 			if beginNow {
-				if constant.LEFT_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+				if constant.LeftEqual == beginAli && constant.RightEqual == endAli {
 					script = "begin <= value && value <= end"
-				} else if constant.LEFT_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+				} else if constant.LeftEqual == beginAli && constant.RightUnEqual == endAli {
 					script = "begin <= value && value < end"
-				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+				} else if constant.LeftUnEqual == beginAli && constant.RightEqual == endAli {
 					script = "begin < value && value <= end"
-				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+				} else if constant.LeftUnEqual == beginAli && constant.RightUnEqual == endAli {
 					script = "begin < value && value < end"
 				}
 			} else {
-				if constant.RIGHT_EQUAL == endAli {
+				if constant.RightEqual == endAli {
 					script = "value <= end"
-				} else if constant.RIGHT_UN_EQUAL == endAli {
+				} else if constant.RightUnEqual == endAli {
 					script = "value < end"
 				}
 			}
@@ -208,30 +208,30 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	} else {
 		if end == nil {
 			if endNow {
-				if constant.LEFT_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+				if constant.LeftEqual == beginAli && constant.RightEqual == endAli {
 					script = "begin <= value && value <= end"
-				} else if constant.LEFT_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+				} else if constant.LeftEqual == beginAli && constant.RightUnEqual == endAli {
 					script = "begin <= value && value < end"
-				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+				} else if constant.LeftUnEqual == beginAli && constant.RightEqual == endAli {
 					script = "begin < value && value <= end"
-				} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+				} else if constant.LeftUnEqual == beginAli && constant.RightUnEqual == endAli {
 					script = "begin < value && value < end"
 				}
 			} else {
-				if constant.LEFT_EQUAL == beginAli {
+				if constant.LeftEqual == beginAli {
 					script = "begin <= value"
-				} else if constant.LEFT_UN_EQUAL == beginAli {
+				} else if constant.LeftUnEqual == beginAli {
 					script = "begin < value"
 				}
 			}
 		} else {
-			if constant.LEFT_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+			if constant.LeftEqual == beginAli && constant.RightEqual == endAli {
 				script = "begin <= value && value <= end"
-			} else if constant.LEFT_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+			} else if constant.LeftEqual == beginAli && constant.RightUnEqual == endAli {
 				script = "begin <= value && value < end"
-			} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_EQUAL == endAli {
+			} else if constant.LeftUnEqual == beginAli && constant.RightEqual == endAli {
 				script = "begin < value && value <= end"
-			} else if constant.LEFT_UN_EQUAL == beginAli && constant.RIGHT_UN_EQUAL == endAli {
+			} else if constant.LeftUnEqual == beginAli && constant.RightUnEqual == endAli {
 				script = "begin < value && value < end"
 			}
 		}
@@ -298,13 +298,13 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 			var endNow bool
 			var beginTime time.Time
 			var endTime time.Time
-			if begin == constant.NOW {
+			if begin == constant.Now {
 				beginNow = true
 			} else {
 				beginTime = util.ParseTime(begin)
 			}
 
-			if end == constant.NOW {
+			if end == constant.Now {
 				endNow = true
 			} else {
 				endTime = util.ParseTime(end)
@@ -333,12 +333,12 @@ func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {
 		}
 	} else {
 		// 匹配过去和未来的时间
-		if subCondition == constant.PAST {
+		if subCondition == constant.Past {
 			// 过去，则范围为(null, now)
-			return &RangeEntity{beginAli: constant.LEFT_UN_EQUAL, begin: nil, end: nil, endAli: constant.RIGHT_UN_EQUAL, dateFlag: true, endNow: true}
-		} else if subCondition == constant.FUTURE {
+			return &RangeEntity{beginAli: constant.LeftUnEqual, begin: nil, end: nil, endAli: constant.RightUnEqual, dateFlag: true, endNow: true}
+		} else if subCondition == constant.Future {
 			// 未来，则范围为(now, null)
-			return &RangeEntity{beginAli: constant.LEFT_UN_EQUAL, begin: nil, end: nil, endAli: constant.RIGHT_UN_EQUAL, dateFlag: true, beginNow: true}
+			return &RangeEntity{beginAli: constant.LeftUnEqual, begin: nil, end: nil, endAli: constant.RightUnEqual, dateFlag: true, beginNow: true}
 		}
 		return nil
 	}

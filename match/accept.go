@@ -8,7 +8,7 @@ import (
 )
 
 func CollectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string) {
-	if constant.ACCEPT != tagName {
+	if constant.Accept != tagName {
 		return
 	}
 

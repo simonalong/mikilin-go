@@ -36,7 +36,7 @@ func BuildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	if fieldKind == reflect.Slice {
 		return
 	}
-	if !strings.Contains(subCondition, constant.REGEX) || !strings.Contains(subCondition, constant.EQUAL) {
+	if !strings.Contains(subCondition, constant.Regex) || !strings.Contains(subCondition, constant.EQUAL) {
 		return
 	}
 
