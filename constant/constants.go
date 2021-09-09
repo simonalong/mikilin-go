@@ -2,17 +2,15 @@ package constant
 
 /* 匹配 */
 const (
-	// EQUAL 值列表
-	EQUAL = "="
 	// VALUE 值列表
 	VALUE = "value"
 	// IsBlank 字符为空匹配
 	IsBlank = "isBlank"
 	// RANGE 范围匹配
-	RANGE = "range"
-	// MODEL 模式类型匹配
+	RANGE     = "range"
 	MODEL     = "model"
 	CONDITION = "condition"
+	// REGEX 正则表达式
 	REGEX     = "regex"
 	CUSTOMIZE = "customize"
 )
@@ -27,6 +25,7 @@ const (
 
 /* tag关键字 */
 const (
+	EQUAL = "="
 	MATCH = "match"
 	CHECK = "check"
 )
@@ -41,4 +40,13 @@ const (
 	NOW    = "now"
 	PAST   = "past"
 	FUTURE = "future"
+)
+
+/* model类别 */
+const (
+	ID_CARD     = "id_card"
+	PHONE       = "phone"
+	FIXED_PHONE = "fixed_phone"
+	MAIL        = "mail"
+	IP_ADDRESS  = "ip"
 )
