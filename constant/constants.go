@@ -21,8 +21,9 @@ const (
 const (
 	ErrMsg   = "errMsg"
 	ChangeTo = "changeTo"
-	Accept   = "accept"
-	Disable  = "disable"
+	// Accept 匹配后是否接受
+	Accept  = "accept"
+	Disable = "disable"
 )
 
 /* tag关键字 */

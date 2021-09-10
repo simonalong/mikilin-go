@@ -199,6 +199,12 @@ func doCollectCollector(objType reflect.Type) {
 			fieldKind = field.Type.Elem().Kind()
 		}
 
+		// 禁用
+		tagMatch := field.Tag.Get(constant.Disable)
+		if len(tagMatch) != 0 && tagMatch == "true" {
+			continue
+		}
+
 		// 基本类型
 		if util.IsCheckedKing(field.Type) {
 			// match
