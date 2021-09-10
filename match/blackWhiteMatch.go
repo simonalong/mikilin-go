@@ -2,9 +2,6 @@ package matcher
 
 import (
 	"fmt"
-	"github.com/antonmedv/expr/compiler"
-	"github.com/antonmedv/expr/parser"
-	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
@@ -60,11 +57,13 @@ func addMatcher(objectTypeFullName string, objectFieldName string, matcher Match
 
 func parseErrMsg(originalErrMsg string, object interface{}, fieldValue interface{}) string {
 	// todo
+	return ""
 }
 
 // 将其中的root.xx和current生成对应的占位符和sprintf字段，比如：数据#root.Age的名字#current不合法，转换为：sprintf("数据%v的名字%v不合法", root.Age, current)
 func errMsgToTemplate(errMsg string) string {
-
+	// todo
+	return ""
 }
 
 // 将#root和#current转换为root和#current，相当于移除井号

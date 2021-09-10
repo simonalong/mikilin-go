@@ -4,9 +4,6 @@ import (
 	"github.com/SimonAlong/Mikilin-go/constant"
 	matcher "github.com/SimonAlong/Mikilin-go/match"
 	"github.com/SimonAlong/Mikilin-go/util"
-	"github.com/antonmedv/expr/compiler"
-	"github.com/antonmedv/expr/parser"
-	log "github.com/sirupsen/logrus"
 	"reflect"
 	"sort"
 	"strings"
@@ -346,7 +343,8 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 		if !accept {
 			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); matchResult {
 				if originalErrMsg != "" {
-					ch <- &CheckResult{Result: false, ErrMsg: parseErrMsg(originalErrMsg, object, fieldValue)}
+					// todo
+					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
 				} else {
 					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
 				}
@@ -358,7 +356,8 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 		if accept {
 			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); !matchResult {
 				if originalErrMsg != "" {
-					ch <- &CheckResult{Result: false, ErrMsg: parseErrMsg(originalErrMsg, object, fieldValue)}
+					// todo
+					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
 				} else {
 					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
 				}

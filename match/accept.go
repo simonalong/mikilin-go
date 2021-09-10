@@ -16,5 +16,5 @@ func CollectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFiel
 	if err != nil {
 		return
 	}
-	addMatcher(objectTypeFullName, objectFieldName, nil, accept)
+	addMatcher(objectTypeFullName, objectFieldName, nil, errMsg, accept)
 }
