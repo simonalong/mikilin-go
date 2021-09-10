@@ -69,7 +69,7 @@ func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 		return
 	}
 
-	tree, err := parser.Parse(expression)
+	tree, err := parser.Parse(rmvWell(expression))
 	if err != nil {
 		log.Errorf("脚本：%v 解析异常：%v", expression, err.Error())
 		return
@@ -81,4 +81,16 @@ func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 		return
 	}
 	addMatcher(objectTypeFullName, objectFieldName, &ConditionMatch{Program: program, expression: expression}, true)
+}
+
+// 将#root和#current转换为root和#current，相当于移除井号
+func rmvWell(expression string) string {
+	if strings.Contains(expression, "#root.") {
+		expression = strings.ReplaceAll(expression, "#root.", "root.")
+	}
+
+	if strings.Contains(expression, "#current") {
+		expression = strings.ReplaceAll(expression, "#current", "current")
+	}
+	return expression
 }

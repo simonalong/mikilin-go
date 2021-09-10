@@ -19,10 +19,12 @@ const (
 
 /* 匹配后处理 */
 const (
+	// ErrMsg 自定义错误异常
 	ErrMsg   = "errMsg"
 	ChangeTo = "changeTo"
 	// Accept 匹配后是否接受
-	Accept  = "accept"
+	Accept = "accept"
+	// Disable 是否启用属性的核查功能
 	Disable = "disable"
 )
 
