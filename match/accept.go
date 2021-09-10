@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func CollectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string) {
+func CollectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.Accept != tagName {
 		return
 	}

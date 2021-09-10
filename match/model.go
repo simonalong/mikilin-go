@@ -55,7 +55,7 @@ func (modelMatch *ModelMatch) IsEmpty() bool {
 	return modelMatch.pReg == nil
 }
 
-func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string) {
+func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}

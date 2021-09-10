@@ -50,7 +50,7 @@ func (conditionMatch *ConditionMatch) IsEmpty() bool {
 	return conditionMatch.Program == nil
 }
 
-func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string) {
+func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}
@@ -80,17 +80,5 @@ func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 		log.Errorf("脚本: %v 编译异常：%v", expression, err.Error())
 		return
 	}
-	addMatcher(objectTypeFullName, objectFieldName, &ConditionMatch{Program: program, expression: expression}, true)
-}
-
-// 将#root和#current转换为root和#current，相当于移除井号
-func rmvWell(expression string) string {
-	if strings.Contains(expression, "#root.") {
-		expression = strings.ReplaceAll(expression, "#root.", "root.")
-	}
-
-	if strings.Contains(expression, "#current") {
-		expression = strings.ReplaceAll(expression, "#current", "current")
-	}
-	return expression
+	addMatcher(objectTypeFullName, objectFieldName, &ConditionMatch{Program: program, expression: expression}, errMsg, true)
 }

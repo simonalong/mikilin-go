@@ -1,6 +1,9 @@
 package matcher
 
-import "reflect"
+import (
+	"github.com/antonmedv/expr/vm"
+	"reflect"
+)
 
 type Matcher interface {
 	Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool
@@ -15,6 +18,8 @@ type FieldMatcher struct {
 	FieldName string
 	// 异常名字
 	ErrMsg string
+	// 异常信息编译后的处理
+	Program *vm.Program
 	// 是否接受：true，则表示白名单，false，则表示黑名单
 	Accept bool
 	// 是否禁用

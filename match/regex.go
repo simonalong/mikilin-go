@@ -28,7 +28,7 @@ func (regexMatch *RegexMatch) IsEmpty() bool {
 	return regexMatch.Reg == nil
 }
 
-func BuildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string) {
+func BuildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}

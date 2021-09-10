@@ -4,6 +4,9 @@ import (
 	"github.com/SimonAlong/Mikilin-go/constant"
 	matcher "github.com/SimonAlong/Mikilin-go/match"
 	"github.com/SimonAlong/Mikilin-go/util"
+	"github.com/antonmedv/expr/compiler"
+	"github.com/antonmedv/expr/parser"
+	log "github.com/sirupsen/logrus"
 	"reflect"
 	"sort"
 	"strings"
@@ -13,7 +16,7 @@ import (
 
 var lock sync.Mutex
 
-type MatchCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string)
+type MatchCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string)
 
 type CollectorEntity struct {
 	name         string
@@ -207,6 +210,9 @@ func doCollectCollector(objType reflect.Type) {
 
 		// 基本类型
 		if util.IsCheckedKing(field.Type) {
+			// 错误码信息
+			errMsg := field.Tag.Get(constant.ErrMsg)
+
 			// match
 			tagMatch := field.Tag.Get(constant.MATCH)
 			if len(tagMatch) == 0 {
@@ -214,7 +220,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				addMatcher(objectFullName, fieldKind, field.Name, tagMatch)
+				addMatcher(objectFullName, fieldKind, field.Name, tagMatch, errMsg)
 			}
 
 			// accept
@@ -224,7 +230,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; contain {
-				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept)
+				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept, errMsg)
 			}
 		} else if fieldKind == reflect.Struct {
 			// struct 结构类型
@@ -244,6 +250,9 @@ func doCollectCollector(objType reflect.Type) {
 		} else if fieldKind == reflect.Slice {
 			// Slice 结构
 
+			// 错误码信息
+			errMsg := field.Tag.Get(constant.ErrMsg)
+
 			// match
 			tagMatch := field.Tag.Get(constant.MATCH)
 			if len(tagMatch) == 0 {
@@ -251,7 +260,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				addMatcher(objectFullName, fieldKind, field.Name, tagMatch)
+				addMatcher(objectFullName, fieldKind, field.Name, tagMatch, errMsg)
 			}
 
 			// accept
@@ -261,7 +270,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept)
+				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept, errMsg)
 			}
 
 			doCollectCollector(field.Type.Elem())
@@ -290,7 +299,7 @@ func isSelectField(fieldName string, fieldNames ...string) bool {
 }
 
 // 搜集处理器，对于有一些空格的也进行单独处理
-func addMatcher(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string) {
+func addMatcher(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string, errMsg string) {
 	var subStrIndexes []int
 	for _, tag := range matchTagArray {
 		index := strings.Index(matchJudge, tag)
@@ -306,22 +315,22 @@ func addMatcher(objectFullName string, fieldKind reflect.Kind, fieldName string,
 			continue
 		}
 		subJudgeStr := matchJudge[lastIndex:subIndex]
-		buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr)
+		buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr, errMsg)
 		lastIndex = subIndex
 	}
 
 	subJudgeStr := matchJudge[lastIndex:]
-	buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr)
+	buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr, errMsg)
 }
 
 // 添加搜集器
-func addCollector(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, matchJudge string) {
-	buildChecker(objectFullName, fieldKind, fieldName, tagName, matchJudge)
+func addCollector(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, matchJudge string, errMsg string) {
+	buildChecker(objectFullName, fieldKind, fieldName, tagName, matchJudge, errMsg)
 }
 
-func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, subStr string) {
+func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, subStr string, errMsg string) {
 	for _, entity := range checkerEntities {
-		entity.infCollector(objectFullName, fieldKind, fieldName, tagName, subStr)
+		entity.infCollector(objectFullName, fieldKind, fieldName, tagName, subStr, errMsg)
 	}
 }
 
@@ -330,12 +339,17 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 
 	if fieldMatcher, contain := matcher.MatchMap[objectType.String()][field.Name]; contain {
 		accept := fieldMatcher.Accept
+		originalErrMsg := fieldMatcher.ErrMsg
 		matchers := fieldMatcher.Matchers
 
 		// 黑名单，而且匹配到，则核查失败
 		if !accept {
 			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); matchResult {
-				ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				if originalErrMsg != "" {
+					ch <- &CheckResult{Result: false, ErrMsg: parseErrMsg(originalErrMsg, object, fieldValue)}
+				} else {
+					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				}
 				return
 			}
 		}
@@ -343,7 +357,11 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 		// 白名单，没有匹配到，则核查失败
 		if accept {
 			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); !matchResult {
-				ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				if originalErrMsg != "" {
+					ch <- &CheckResult{Result: false, ErrMsg: parseErrMsg(originalErrMsg, object, fieldValue)}
+				} else {
+					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				}
 				return
 			}
 		}

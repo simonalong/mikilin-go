@@ -47,7 +47,7 @@ func (isBlankMatch *IsBlankMatch) IsEmpty() bool {
 	return isBlankMatch.HaveSet == 0
 }
 
-func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string) {
+func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}

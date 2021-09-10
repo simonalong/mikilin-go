@@ -144,7 +144,7 @@ func (rangeMatch *RangeMatch) IsEmpty() bool {
 	return rangeMatch.Script == ""
 }
 
-func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string) {
+func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}
