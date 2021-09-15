@@ -13,14 +13,16 @@ const (
 	// Condition 条件表达式
 	Condition = "condition"
 	// Regex 正则表达式
-	Regex     = "regex"
+	Regex = "regex"
+	// todo 待支持
 	Customize = "customize"
 )
 
 /* 匹配后处理 */
 const (
 	// ErrMsg 自定义错误异常
-	ErrMsg   = "errMsg"
+	ErrMsg = "errMsg"
+	// todo 待支持
 	ChangeTo = "changeTo"
 	// Accept 匹配后是否接受
 	Accept = "accept"
