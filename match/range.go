@@ -249,7 +249,7 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 		return
 	}
 
-	addMatcher(objectTypeFullName, objectFieldName, &RangeMatch{Program: program, Begin: begin, End: end, Script: script, RangeExpress: value, BeginNow: beginNow, EndNow: endNow}, true)
+	addMatcher(objectTypeFullName, objectFieldName, &RangeMatch{Program: program, Begin: begin, End: end, Script: script, RangeExpress: value, BeginNow: beginNow, EndNow: endNow}, errMsg, true)
 }
 
 func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {

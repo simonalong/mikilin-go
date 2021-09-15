@@ -78,9 +78,9 @@ func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	}
 
 	if modelKey == constant.IdCard {
-		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: true, modelName: modelKey}, true)
+		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: true, modelName: modelKey}, errMsg, true)
 	} else {
-		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: false, modelName: modelKey}, true)
+		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: false, modelName: modelKey}, errMsg, true)
 	}
 }
 

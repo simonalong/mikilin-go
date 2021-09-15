@@ -1,9 +1,12 @@
 package mikilin
 
 import (
+	"fmt"
 	"github.com/SimonAlong/Mikilin-go/constant"
 	matcher "github.com/SimonAlong/Mikilin-go/match"
 	"github.com/SimonAlong/Mikilin-go/util"
+	"github.com/antonmedv/expr"
+	log "github.com/sirupsen/logrus"
 	"reflect"
 	"sort"
 	"strings"
@@ -336,15 +339,28 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 
 	if fieldMatcher, contain := matcher.MatchMap[objectType.String()][field.Name]; contain {
 		accept := fieldMatcher.Accept
-		originalErrMsg := fieldMatcher.ErrMsg
+		program := fieldMatcher.Program
 		matchers := fieldMatcher.Matchers
 
 		// 黑名单，而且匹配到，则核查失败
 		if !accept {
 			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); matchResult {
-				if originalErrMsg != "" {
-					// todo
-					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				if program != nil {
+					env := map[string]interface{}{
+						"sprintf": fmt.Sprintf,
+						"root":    object,
+						"current": fieldValue,
+					}
+
+					output, err := expr.Run(program, env)
+					if err != nil {
+						log.Errorf(err.Error())
+						return
+					}
+
+					result := fmt.Sprintf("%v", output)
+
+					ch <- &CheckResult{Result: false, ErrMsg: result}
 				} else {
 					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
 				}
@@ -355,9 +371,21 @@ func check(object interface{}, field reflect.StructField, fieldValue interface{}
 		// 白名单，没有匹配到，则核查失败
 		if accept {
 			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldValue, accept); !matchResult {
-				if originalErrMsg != "" {
-					// todo
-					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
+				if program != nil {
+					env := map[string]interface{}{
+						"sprintf": fmt.Sprintf,
+						"root":    object,
+						"current": fieldValue,
+					}
+
+					output, err := expr.Run(program, env)
+					if err != nil {
+						log.Errorf(err.Error())
+						return
+					}
+
+					result := fmt.Sprintf("%v", output)
+					ch <- &CheckResult{Result: false, ErrMsg: result}
 				} else {
 					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
 				}

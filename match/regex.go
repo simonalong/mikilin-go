@@ -47,5 +47,5 @@ func BuildRegexMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	if err != nil {
 		return
 	}
-	addMatcher(objectTypeFullName, objectFieldName, &RegexMatch{Reg: reg}, true)
+	addMatcher(objectTypeFullName, objectFieldName, &RegexMatch{Reg: reg}, errMsg, true)
 }

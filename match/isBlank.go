@@ -74,6 +74,6 @@ func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, obje
 			log.Error(err.Error())
 			return
 		}
-		addMatcher(objectTypeFullName, objectFieldName, &IsBlankMatch{IsBlank: isBlank, HaveSet: 1}, true)
+		addMatcher(objectTypeFullName, objectFieldName, &IsBlankMatch{IsBlank: isBlank, HaveSet: 1}, errMsg, true)
 	}
 }

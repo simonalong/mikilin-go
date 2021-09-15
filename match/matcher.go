@@ -16,8 +16,6 @@ type FieldMatcher struct {
 
 	// 属性名
 	FieldName string
-	// 异常名字
-	ErrMsg string
 	// 异常信息编译后的处理
 	Program *vm.Program
 	// 是否接受：true，则表示白名单，false，则表示黑名单
