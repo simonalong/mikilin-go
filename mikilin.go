@@ -425,10 +425,8 @@ func judgeMatch(matchers []*matcher.Matcher, object interface{}, field reflect.S
 // 包的初始回调
 func init() {
 	/* 搜集匹配后的操作参数 */
-	//checkerEntities = append(checkerEntities, CollectorEntity{ErrMsg, collectErrMsg})
 	//checkerEntities = append(checkerEntities, CollectorEntity{ChangeTo, collectChangeTo})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Accept, matcher.CollectAccept})
-	//checkerEntities = append(checkerEntities, CollectorEntity{Disable, collectDisable})
 
 	/* 搜集匹配器 */
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Value, matcher.BuildValuesMatcher})
@@ -436,6 +434,6 @@ func init() {
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Range, matcher.BuildRangeMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Model, matcher.BuildModelMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Condition, matcher.BuildConditionMatcher})
-	//checkerEntities = append(checkerEntities, CollectorEntity{Customize, buildCustomizeMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.Customize, matcher.BuildCustomizeMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Regex, matcher.BuildRegexMatcher})
 }

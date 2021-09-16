@@ -39,11 +39,10 @@ func (conditionMatch *ConditionMatch) Match(object interface{}, field reflect.St
 
 	if result {
 		conditionMatch.SetBlackMsg("属性 %v 的值 %v 命中禁用条件 [%v] ", field.Name, fieldValue, conditionMatch.expression)
-		return true
 	} else {
 		conditionMatch.SetWhiteMsg("属性 %v 的值 %v 不符合条件 [%v] ", field.Name, fieldValue, conditionMatch.expression)
-		return false
 	}
+	return result
 }
 
 func (conditionMatch *ConditionMatch) IsEmpty() bool {
@@ -62,7 +61,7 @@ func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 		return
 	}
 
-	index := strings.Index(subCondition, "=")
+	index := strings.Index(subCondition, constant.EQUAL)
 	expression := subCondition[index+1:]
 
 	if expression == "" {
