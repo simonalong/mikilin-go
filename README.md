@@ -129,6 +129,24 @@ type ValueStructEntity struct {
 - map：其中的key和value类型只有是复杂结构才会核查
 
 ### 2. 匹配器：isBlank
+匹配string类型的值是否为空字符，false：字符不为空则匹配上，true：字符为空则匹配上
+```go
+type IsBlankEntity1 struct {
+   Name string `match:"isBlank=false"`
+   Age  int
+}
+
+// 默认为true
+type IsBlankEntity2 struct {
+   Name string `match:"isBlank"`
+   Age  int
+}
+
+type IsBlankEntity3 struct {
+   Name string `match:"isBlank=true"`
+   Age  int
+}
+```
 ### 3. 匹配器：range
 ### 4. 匹配器：model
 ### 5. 匹配器：condition

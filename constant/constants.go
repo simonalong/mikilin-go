@@ -6,6 +6,8 @@ const (
 	Value = "value"
 	// IsBlank 字符为空匹配
 	IsBlank = "isBlank"
+	// IsUnBlank 字符为非空匹配
+	IsUnBlank = "isUnBlank"
 	// Range 范围匹配
 	Range = "range"
 	// Model 固定的几个模式匹配

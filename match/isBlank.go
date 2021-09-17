@@ -14,7 +14,7 @@ type IsBlankMatch struct {
 	// 是否设置过isNil值
 	HaveSet int8
 
-	// 修饰的值是否匹配isNil
+	// 匹配空字符的值
 	IsBlank bool
 }
 

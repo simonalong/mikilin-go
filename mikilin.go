@@ -433,6 +433,7 @@ func init() {
 	/* 搜集匹配器 */
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Value, matcher.BuildValuesMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.IsBlank, matcher.BuildIsBlankMatcher})
+	checkerEntities = append(checkerEntities, CollectorEntity{constant.IsUnBlank, matcher.BuildIsUnBlankMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Range, matcher.BuildRangeMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Model, matcher.BuildModelMatcher})
 	checkerEntities = append(checkerEntities, CollectorEntity{constant.Condition, matcher.BuildConditionMatcher})
