@@ -47,7 +47,7 @@ func (isBlankMatch *IsBlankMatch) IsEmpty() bool {
 	return isBlankMatch.HaveSet == 0
 }
 
-func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
+func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, changeTo string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}
@@ -74,6 +74,6 @@ func BuildIsBlankMatcher(objectTypeFullName string, fieldKind reflect.Kind, obje
 			log.Error(err.Error())
 			return
 		}
-		addMatcher(objectTypeFullName, objectFieldName, &IsBlankMatch{IsBlank: isBlank, HaveSet: 1}, errMsg, true)
+		addMatcher(objectTypeFullName, objectFieldName, &IsBlankMatch{IsBlank: isBlank, HaveSet: 1}, errMsg, changeTo, true)
 	}
 }

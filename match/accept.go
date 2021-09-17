@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func CollectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
+func CollectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, changeTo string, errMsg string) {
 	if constant.Accept != tagName {
 		return
 	}
@@ -16,5 +16,5 @@ func CollectAccept(objectTypeFullName string, fieldKind reflect.Kind, objectFiel
 	if err != nil {
 		return
 	}
-	addMatcher(objectTypeFullName, objectFieldName, nil, errMsg, accept)
+	addMatcher(objectTypeFullName, objectFieldName, nil, errMsg, changeTo, accept)
 }

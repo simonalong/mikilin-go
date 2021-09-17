@@ -55,7 +55,7 @@ func (modelMatch *ModelMatch) IsEmpty() bool {
 	return modelMatch.pReg == nil
 }
 
-func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
+func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, changeTo string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}
@@ -78,9 +78,9 @@ func BuildModelMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 	}
 
 	if modelKey == constant.IdCard {
-		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: true, modelName: modelKey}, errMsg, true)
+		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: true, modelName: modelKey}, errMsg, changeTo, true)
 	} else {
-		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: false, modelName: modelKey}, errMsg, true)
+		addMatcher(objectTypeFullName, objectFieldName, &ModelMatch{pReg: pReg, isIdCard: false, modelName: modelKey}, errMsg, changeTo, true)
 	}
 }
 

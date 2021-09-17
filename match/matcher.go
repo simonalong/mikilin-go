@@ -17,12 +17,12 @@ type FieldMatcher struct {
 	// 属性名
 	FieldName string
 	// 异常信息编译后的处理
-	Program *vm.Program
+	ErrMsgProgram *vm.Program
 	// 是否接受：true，则表示白名单，false，则表示黑名单
 	Accept bool
 	// 是否禁用
 	Disable bool
-	// 待转换的名字
+	// 待转换的值
 	ChangeTo string
 	// 匹配器列表
 	Matchers []*Matcher

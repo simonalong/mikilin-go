@@ -29,7 +29,7 @@ func (blackWhiteMatch *BlackWhiteMatch) GetBlackMsg() string {
 	return blackWhiteMatch.BlackMsg
 }
 
-func addMatcher(objectTypeFullName string, objectFieldName string, matcher Matcher, errMsg string, accept bool) {
+func addMatcher(objectTypeFullName string, objectFieldName string, matcher Matcher, errMsg string, changeTo string, accept bool) {
 	fieldMatcherMap, c1 := MatchMap[objectTypeFullName]
 
 	if !c1 {
@@ -53,9 +53,9 @@ func addMatcher(objectTypeFullName string, objectFieldName string, matcher Match
 				return
 			}
 
-			fieldMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, Program: program, Matchers: matchers, Accept: accept}
+			fieldMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, ErrMsgProgram: program, Matchers: matchers, ChangeTo: changeTo, Accept: accept}
 		} else {
-			fieldMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, Matchers: matchers, Accept: accept}
+			fieldMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, Matchers: matchers, ChangeTo: changeTo, Accept: accept}
 		}
 
 		MatchMap[objectTypeFullName] = fieldMap
@@ -80,9 +80,9 @@ func addMatcher(objectTypeFullName string, objectFieldName string, matcher Match
 					return
 				}
 
-				fieldMatcherMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, Program: program, Matchers: matchers, Accept: accept}
+				fieldMatcherMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, ErrMsgProgram: program, Matchers: matchers, ChangeTo: changeTo, Accept: accept}
 			} else {
-				fieldMatcherMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, Matchers: matchers, Accept: accept}
+				fieldMatcherMap[objectFieldName] = &FieldMatcher{FieldName: objectFieldName, Matchers: matchers, ChangeTo: changeTo, Accept: accept}
 			}
 		} else {
 			if matcher != nil {
