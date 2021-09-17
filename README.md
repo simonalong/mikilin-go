@@ -2,7 +2,7 @@
 
 mikilin-go是核查框架，该框架是java版本的 [核查框架Mikilin](https://github.com/simonAlong/Mikilin) 的go版本实现
 
-## 下载
+## 安装
 
 ```shell
 go get github.com/simonalong/mikilin-go
