@@ -355,15 +355,15 @@ type ValueModelIpAddressEntity struct {
 ```go
 // 测试基本表达式
 type ValueConditionEntity1 struct {
-	Data1 int `match:"condition=#current + #root.Data2 > 100"`
-	Data2 int `match:"condition=#current < 20"`
-	Data3 int `match:"condition=(++#current) >31"`
+    Data1 int `match:"condition=#current + #root.Data2 > 100"`
+    Data2 int `match:"condition=#current < 20"`
+    Data3 int `match:"condition=(++#current) >31"`
 }
 
 // 测试表达式
 type ValueConditionEntity2 struct {
-	Age   int `match:"condition=#root.Judge"`
-	Judge bool
+    Age   int `match:"condition=#root.Judge"`
+    Judge bool
 }
 ```
 
