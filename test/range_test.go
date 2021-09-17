@@ -1,8 +1,8 @@
 package main
 
 import (
-	mikilin "github.com/SimonAlong/Mikilin-go"
-	"github.com/SimonAlong/Mikilin-go/test/assert"
+	mikilin "github.com/simonalong/mikilin-go"
+	"github.com/simonalong/mikilin-go/test/assert"
 	"testing"
 	"time"
 )

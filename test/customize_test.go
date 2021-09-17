@@ -1,9 +1,9 @@
 package main
 
 import (
-	mikilin "github.com/SimonAlong/Mikilin-go"
-	"github.com/SimonAlong/Mikilin-go/test/assert"
-	"github.com/SimonAlong/Mikilin-go/test/fun"
+	mikilin "github.com/simonalong/mikilin-go"
+	"github.com/simonalong/mikilin-go/test/assert"
+	"github.com/simonalong/mikilin-go/test/fun"
 	"testing"
 )
 

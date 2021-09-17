@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/SimonAlong/Mikilin-go/constant"
+	"github.com/simonalong/mikilin-go/constant"
 	"reflect"
 	"strconv"
 	"strings"

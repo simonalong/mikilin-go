@@ -1,8 +1,8 @@
 package main
 
 import (
-	mikilin "github.com/SimonAlong/Mikilin-go"
-	"github.com/SimonAlong/Mikilin-go/test/assert"
+	mikilin "github.com/simonalong/mikilin-go"
+	"github.com/simonalong/mikilin-go/test/assert"
 	"testing"
 )
 
@@ -43,9 +43,9 @@ func TestErrMsg2(t *testing.T) {
 	var err string
 
 	// 测试 正常情况
-	value = ErrMsgEntity2{Name: "zhou", Age: 12}
-	result, _ = mikilin.Check(value)
-	assert.True(t, result)
+	//value = ErrMsgEntity2{Name: "zhou", Age: 12}
+	//result, _ = mikilin.Check(value)
+	//assert.True(t, result)
 
 	// 测试 正常情况
 	value = ErrMsgEntity2{Name: "zhou", Age: 2}

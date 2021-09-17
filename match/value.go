@@ -1,8 +1,8 @@
 package matcher
 
 import (
-	"github.com/SimonAlong/Mikilin-go/constant"
-	"github.com/SimonAlong/Mikilin-go/util"
+	"github.com/simonalong/mikilin-go/constant"
+	"github.com/simonalong/mikilin-go/util"
 	log "github.com/sirupsen/logrus"
 	"reflect"
 	"strings"

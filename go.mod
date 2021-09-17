@@ -1,4 +1,4 @@
-module github.com/SimonAlong/Mikilin-go
+module github.com/simonalong/mikilin-go
 
 go 1.12
 

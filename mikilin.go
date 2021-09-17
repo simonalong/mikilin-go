@@ -2,10 +2,10 @@ package mikilin
 
 import (
 	"fmt"
-	"github.com/SimonAlong/Mikilin-go/constant"
-	matcher "github.com/SimonAlong/Mikilin-go/match"
-	"github.com/SimonAlong/Mikilin-go/util"
 	"github.com/antonmedv/expr"
+	"github.com/simonalong/mikilin-go/constant"
+	matcher "github.com/simonalong/mikilin-go/match"
+	"github.com/simonalong/mikilin-go/util"
 	log "github.com/sirupsen/logrus"
 	"reflect"
 	"sort"
@@ -80,7 +80,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 			}
 
 			// 核查结果：任何一个属性失败，则返回失败
-			go check(object, field, fieldValue, fieldValue.Interface(), ch)
+			go check(object, field, fieldValue.Interface(), ch)
 			checkResult := <-ch
 			if !checkResult.Result {
 				close(ch)
@@ -133,7 +133,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 			}
 
 			// 核查结果：任何一个属性失败，则返回失败
-			go check(object, field, fieldValue, fieldValue.Interface(), ch)
+			go check(object, field, fieldValue.Interface(), ch)
 			checkResult := <-ch
 			if !checkResult.Result {
 				close(ch)
@@ -331,7 +331,7 @@ func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName strin
 	}
 }
 
-func check(object interface{}, field reflect.StructField, fieldValue reflect.Value, fieldRelValue interface{}, ch chan *CheckResult) {
+func check(object interface{}, field reflect.StructField, fieldRelValue interface{}, ch chan *CheckResult) {
 	objectType := reflect.TypeOf(object)
 
 	if fieldMatcher, contain := matcher.MatchMap[objectType.String()][field.Name]; contain {
@@ -352,6 +352,7 @@ func check(object interface{}, field reflect.StructField, fieldValue reflect.Val
 					output, err := expr.Run(errMsgProgram, env)
 					if err != nil {
 						log.Errorf(err.Error())
+						ch <- &CheckResult{Result: false, ErrMsg: err.Error()}
 						return
 					}
 
@@ -378,6 +379,7 @@ func check(object interface{}, field reflect.StructField, fieldValue reflect.Val
 					output, err := expr.Run(errMsgProgram, env)
 					if err != nil {
 						log.Errorf(err.Error())
+						ch <- &CheckResult{Result: false, ErrMsg: err.Error()}
 						return
 					}
 
