@@ -22,8 +22,6 @@ type FieldMatcher struct {
 	Accept bool
 	// 是否禁用
 	Disable bool
-	// 待转换的值
-	ChangeTo string
 	// 匹配器列表
 	Matchers []*Matcher
 }

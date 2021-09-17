@@ -144,7 +144,7 @@ func (rangeMatch *RangeMatch) IsEmpty() bool {
 	return rangeMatch.Script == ""
 }
 
-func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, changeTo string, errMsg string) {
+func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}
@@ -249,7 +249,7 @@ func BuildRangeMatcher(objectTypeFullName string, fieldKind reflect.Kind, object
 		return
 	}
 
-	addMatcher(objectTypeFullName, objectFieldName, &RangeMatch{Program: program, Begin: begin, End: end, Script: script, RangeExpress: value, BeginNow: beginNow, EndNow: endNow}, errMsg, changeTo, true)
+	addMatcher(objectTypeFullName, objectFieldName, &RangeMatch{Program: program, Begin: begin, End: end, Script: script, RangeExpress: value, BeginNow: beginNow, EndNow: endNow}, errMsg, true)
 }
 
 func parseRange(fieldKind reflect.Kind, subCondition string) *RangeEntity {

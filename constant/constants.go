@@ -14,7 +14,7 @@ const (
 	Condition = "condition"
 	// Regex 正则表达式
 	Regex = "regex"
-	// todo 待支持
+	// Customize 自定义函数回调
 	Customize = "customize"
 )
 
@@ -22,8 +22,6 @@ const (
 const (
 	// ErrMsg 自定义错误异常
 	ErrMsg = "errMsg"
-	// todo 待支持
-	ChangeTo = "changeTo"
 	// Accept 匹配后是否接受
 	Accept = "accept"
 	// Disable 是否启用属性的核查功能

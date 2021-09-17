@@ -16,7 +16,7 @@ import (
 
 var lock sync.Mutex
 
-type MatchCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, changeTo string, errMsg string)
+type MatchCollector func(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string)
 
 type CollectorEntity struct {
 	name         string
@@ -38,7 +38,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 		return true, ""
 	}
 	objType := reflect.TypeOf(object)
-	objValue := reflect.ValueOf(&object)
+	objValue := reflect.ValueOf(object)
 
 	// 指针类型按照指针类型
 	if objType.Kind() == reflect.Ptr {
@@ -56,7 +56,7 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 	ch := make(chan *CheckResult)
 	for index, num := 0, objType.NumField(); index < num; index++ {
 		field := objType.Field(index)
-		fieldValue := objValue.Elem().Elem().Field(index)
+		fieldValue := objValue.Field(index)
 
 		// 私有字段不处理
 		if !isStartUpper(field.Name) {
@@ -209,8 +209,6 @@ func doCollectCollector(objType reflect.Type) {
 		if util.IsCheckedKing(field.Type) {
 			// 错误码信息
 			errMsg := field.Tag.Get(constant.ErrMsg)
-			// 待转换的值
-			changeTo := field.Tag.Get(constant.ChangeTo)
 
 			// match
 			tagMatch := field.Tag.Get(constant.MATCH)
@@ -219,7 +217,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				addMatcher(objectFullName, fieldKind, field.Name, tagMatch, changeTo, errMsg)
+				addMatcher(objectFullName, fieldKind, field.Name, tagMatch, errMsg)
 			}
 
 			// accept
@@ -229,7 +227,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; contain {
-				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept, changeTo, errMsg)
+				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept, errMsg)
 			}
 		} else if fieldKind == reflect.Struct {
 			// struct 结构类型
@@ -251,8 +249,6 @@ func doCollectCollector(objType reflect.Type) {
 
 			// 错误码信息
 			errMsg := field.Tag.Get(constant.ErrMsg)
-			// 待转换的值
-			changeTo := field.Tag.Get(constant.ChangeTo)
 
 			// match
 			tagMatch := field.Tag.Get(constant.MATCH)
@@ -261,7 +257,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				addMatcher(objectFullName, fieldKind, field.Name, tagMatch, changeTo, errMsg)
+				addMatcher(objectFullName, fieldKind, field.Name, tagMatch, errMsg)
 			}
 
 			// accept
@@ -271,7 +267,7 @@ func doCollectCollector(objType reflect.Type) {
 			}
 
 			if _, contain := matcher.MatchMap[objectFullName][field.Name]; !contain {
-				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept, changeTo, errMsg)
+				addCollector(objectFullName, fieldKind, field.Name, constant.Accept, tagAccept, errMsg)
 			}
 
 			doCollectCollector(field.Type.Elem())
@@ -300,7 +296,7 @@ func isSelectField(fieldName string, fieldNames ...string) bool {
 }
 
 // 搜集处理器，对于有一些空格的也进行单独处理
-func addMatcher(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string, changeTo string, errMsg string) {
+func addMatcher(objectFullName string, fieldKind reflect.Kind, fieldName string, matchJudge string, errMsg string) {
 	var subStrIndexes []int
 	for _, tag := range matchTagArray {
 		index := strings.Index(matchJudge, tag)
@@ -316,22 +312,22 @@ func addMatcher(objectFullName string, fieldKind reflect.Kind, fieldName string,
 			continue
 		}
 		subJudgeStr := matchJudge[lastIndex:subIndex]
-		buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr, changeTo, errMsg)
+		buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr, errMsg)
 		lastIndex = subIndex
 	}
 
 	subJudgeStr := matchJudge[lastIndex:]
-	buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr, changeTo, errMsg)
+	buildChecker(objectFullName, fieldKind, fieldName, constant.MATCH, subJudgeStr, errMsg)
 }
 
 // 添加搜集器
-func addCollector(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, matchJudge string, changeTo string, errMsg string) {
-	buildChecker(objectFullName, fieldKind, fieldName, tagName, matchJudge, changeTo, errMsg)
+func addCollector(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, matchJudge string, errMsg string) {
+	buildChecker(objectFullName, fieldKind, fieldName, tagName, matchJudge, errMsg)
 }
 
-func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, subStr string, changeTo string, errMsg string) {
+func buildChecker(objectFullName string, fieldKind reflect.Kind, fieldName string, tagName string, subStr string, errMsg string) {
 	for _, entity := range checkerEntities {
-		entity.infCollector(objectFullName, fieldKind, fieldName, tagName, subStr, changeTo, errMsg)
+		entity.infCollector(objectFullName, fieldKind, fieldName, tagName, subStr, errMsg)
 	}
 }
 
@@ -342,22 +338,10 @@ func check(object interface{}, field reflect.StructField, fieldValue reflect.Val
 		accept := fieldMatcher.Accept
 		errMsgProgram := fieldMatcher.ErrMsgProgram
 		matchers := fieldMatcher.Matchers
-		changeTo := fieldMatcher.ChangeTo
 
 		// 黑名单，而且匹配到，则核查失败
 		if !accept {
 			if matchResult, errMsg := judgeMatch(matchers, object, field, fieldRelValue, accept); matchResult {
-				// 若配置了转换，则直接转换
-				if changeTo != "" {
-					value, err := util.Cast(field.Type.Kind(), changeTo)
-					if err != nil {
-						log.Errorf("转换失败：%v", err)
-					} else {
-						fieldValue.Set(reflect.ValueOf(value))
-					}
-					ch <- &CheckResult{Result: true}
-					return
-				}
 				if errMsgProgram != nil {
 					env := map[string]interface{}{
 						"sprintf": fmt.Sprintf,
@@ -403,21 +387,6 @@ func check(object interface{}, field reflect.StructField, fieldValue reflect.Val
 					ch <- &CheckResult{Result: false, ErrMsg: errMsg}
 				}
 				return
-			} else {
-				// 若配置了转换，则直接转换
-				if changeTo != "" {
-					//value, err := util.Cast(field.Type.Kind(), changeTo)
-					_, err := util.Cast(field.Type.Kind(), changeTo)
-					if err != nil {
-						log.Errorf("转换失败：%v", err)
-					} else {
-						//fieldValue.Set(reflect.ValueOf(value))
-						// todo 这里还是有问题，设置不进去
-						fieldValue.Elem().Set(reflect.ValueOf("chenzhen"))
-					}
-					ch <- &CheckResult{Result: true}
-					return
-				}
 			}
 		}
 	}

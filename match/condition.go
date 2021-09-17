@@ -49,7 +49,7 @@ func (conditionMatch *ConditionMatch) IsEmpty() bool {
 	return conditionMatch.Program == nil
 }
 
-func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, changeTo string, errMsg string) {
+func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}
@@ -79,5 +79,5 @@ func BuildConditionMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 		log.Errorf("脚本: %v 编译异常：%v", expression, err.Error())
 		return
 	}
-	addMatcher(objectTypeFullName, objectFieldName, &ConditionMatch{Program: program, expression: expression}, errMsg, changeTo, true)
+	addMatcher(objectTypeFullName, objectFieldName, &ConditionMatch{Program: program, expression: expression}, errMsg, true)
 }

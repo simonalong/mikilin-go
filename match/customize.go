@@ -50,7 +50,7 @@ func (customizeMatch *CustomizeMatch) IsEmpty() bool {
 	return customizeMatch.expression == ""
 }
 
-func BuildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, changeTo string, errMsg string) {
+func BuildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, objectFieldName string, tagName string, subCondition string, errMsg string) {
 	if constant.MATCH != tagName {
 		return
 	}
@@ -71,7 +71,7 @@ func BuildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 		log.Errorf("the name of fun not find, funName is [%v]", expression)
 		return
 	}
-	addMatcher(objectTypeFullName, objectFieldName, &CustomizeMatch{funValue: reflect.ValueOf(fun), expression: expression}, errMsg, changeTo, true)
+	addMatcher(objectTypeFullName, objectFieldName, &CustomizeMatch{funValue: reflect.ValueOf(fun), expression: expression}, errMsg, true)
 }
 
 func RegisterFun(funName string, fun interface{}) {
