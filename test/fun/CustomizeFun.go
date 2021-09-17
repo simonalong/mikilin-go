@@ -1,17 +1,20 @@
 package fun
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/simonalong/mikilin-go"
+)
 
 type CustomizeEntity1 struct {
-	Name string `match:"customize=fun.Judge1"`
+	Name string `match:"customize=judge1Name"`
 }
 
 type CustomizeEntity2 struct {
-	Name string `match:"customize=fun.Judge2"`
+	Name string `match:"customize=judge2Name"`
 }
 
 type CustomizeEntity3 struct {
-	Name string `match:"customize=fun.Judge3"`
+	Name string `match:"customize=judge3Name"`
 	Age  int
 }
 
@@ -42,4 +45,10 @@ func JudgeString3(customize CustomizeEntity3, name string) (bool, string) {
 	} else {
 		return false, "没有命中可用的值'zhou'和'宋江'"
 	}
+}
+
+func init() {
+	mikilin.RegisterFun("judge1Name", JudgeString1)
+	mikilin.RegisterFun("judge2Name", JudgeString2)
+	mikilin.RegisterFun("judge3Name", JudgeString3)
 }

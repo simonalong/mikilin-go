@@ -25,7 +25,7 @@ func TestCustomize1(t *testing.T) {
 	// 测试 异常情况
 	value = fun.CustomizeEntity1{Name: "陈真"}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, err, "核查错误：属性 Name 的值 陈真 没命中只允许条件回调 [fun.Judge1] ", result, false)
+	assert.Equal(t, err, "核查错误：属性 Name 的值 陈真 没命中只允许条件回调 [judge1Name] ", result, false)
 }
 
 func TestCustomize2(t *testing.T) {
@@ -78,10 +78,4 @@ func TestCustomize3(t *testing.T) {
 	value = fun.CustomizeEntity3{Name: "zhou", Age: 10}
 	result, err = mikilin.Check(value)
 	assert.Equal(t, err, "核查错误：用户[zhou]没有满足年龄age > 12，当前年龄为：10", result, false)
-}
-
-func init() {
-	mikilin.RegisterFun("fun.Judge1", fun.JudgeString1)
-	mikilin.RegisterFun("fun.Judge2", fun.JudgeString2)
-	mikilin.RegisterFun("fun.Judge3", fun.JudgeString3)
 }

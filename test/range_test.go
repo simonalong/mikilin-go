@@ -25,11 +25,11 @@ type RangeIntEntity3 struct {
 	Age  int `match:"range=[3,)"`
 }
 
-// 整数类型4
-type RangeIntEntity4 struct {
-	Name string
-	Age  int `match:"range=[2,1]"`
-}
+// 整数类型4，todo待校验
+//type RangeIntEntity4 struct {
+//	Name string
+//	Age  int `match:"range=[2,1]"`
+//}
 
 // 整数类型5
 type RangeIntEntity5 struct {
@@ -113,6 +113,18 @@ type RangeTimeCalEntity1 struct {
 type RangeTimeCalEntity2 struct {
 	Name       string
 	CreateTime time.Time `match:"range=(-1M, )"`
+}
+
+// 时间计算：月日
+type RangeTimeCalEntity2And1 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(-1M3d, )"`
+}
+
+// 时间计算：年日
+type RangeTimeCalEntity2And2 struct {
+	Name       string
+	CreateTime time.Time `match:"range=(-1y3d, )"`
 }
 
 // 时间计算：日
@@ -566,12 +578,56 @@ func TestRangeCalTime2(t *testing.T) {
 	assert.TrueErr(t, result, err)
 
 	//测试 正常情况
-	value = RangeTimeCalEntity2{CreateTime: time.Now().AddDate(0, 0, 1)}
+	value = RangeTimeCalEntity2{CreateTime: time.Now().AddDate(0, -1, 1)}
 	result, err = mikilin.Check(value, "createTime")
 	assert.TrueErr(t, result, err)
 
 	//测试 异常情况
-	value = RangeTimeCalEntity2{CreateTime: time.Now().AddDate(0, -2, 0)}
+	value = RangeTimeCalEntity2{CreateTime: time.Now().AddDate(0, -1, -1)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：月日
+func TestRangeCalTime2And1(t *testing.T) {
+	var value RangeTimeCalEntity2And1
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeCalEntity2And1{CreateTime: time.Now().AddDate(0, 0, -2)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeTimeCalEntity2And1{CreateTime: time.Now().AddDate(0, -1, -1)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeCalEntity2And1{CreateTime: time.Now().AddDate(0, -1, -4)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.Equal(t, result, false)
+}
+
+// 测试时间计算：年日
+func TestRangeCalTime2And2(t *testing.T) {
+	var value RangeTimeCalEntity2And2
+	var result bool
+	var err string
+
+	//测试 正常情况
+	value = RangeTimeCalEntity2And2{CreateTime: time.Now().AddDate(-1, 0, -2)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 正常情况
+	value = RangeTimeCalEntity2And2{CreateTime: time.Now().AddDate(-1, 0, -1)}
+	result, err = mikilin.Check(value, "createTime")
+	assert.TrueErr(t, result, err)
+
+	//测试 异常情况
+	value = RangeTimeCalEntity2And2{CreateTime: time.Now().AddDate(-1, -1, 0)}
 	result, err = mikilin.Check(value, "createTime")
 	assert.Equal(t, result, false)
 }
