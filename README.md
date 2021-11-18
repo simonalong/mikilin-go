@@ -31,14 +31,6 @@ func main() {
     var result bool
     var err string
 
-    value = ValueBaseEntityOne{Name: "zhou"}
-
-    // 核查
-    result, err = mikilin.Check(value)
-    if !result {
-        log.Errorf(err)
-    }
-
     value = ValueBaseEntityOne{Name: "chen"}
     // 核查
     result, err = mikilin.Check(value)
