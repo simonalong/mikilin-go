@@ -2,7 +2,6 @@ package main
 
 import (
 	mikilin "github.com/simonalong/mikilin-go"
-	"github.com/simonalong/mikilin-go/test/assert"
 	"testing"
 )
 
@@ -28,22 +27,22 @@ func TestCondition(t *testing.T) {
 	// 测试 异常情况
 	value = ValueConditionEntity1{Data1: 91, Data2: 10, Data3: 31}
 	result, err = mikilin.Check(value, "data1")
-	assert.True(t, result)
+	True(t, result)
 
 	// 测试 异常情况
 	value = ValueConditionEntity1{Data1: 90, Data2: 10, Data3: 31}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, err, "核查错误：属性 Data1 的值 90 不符合条件 [#current + #root.Data2 > 100] ", result, false)
+	Equal(t, err, "核查错误：属性 Data1 的值 90 不符合条件 [#current + #root.Data2 > 100] ", result, false)
 
 	// 测试 异常情况
 	value = ValueConditionEntity1{Data1: 81, Data2: 20, Data3: 31}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, err, "核查错误：属性 Data2 的值 20 不符合条件 [#current < 20] ", result, false)
+	Equal(t, err, "核查错误：属性 Data2 的值 20 不符合条件 [#current < 20] ", result, false)
 
 	// 测试 异常情况
 	value = ValueConditionEntity1{Data1: 91, Data2: 10, Data3: 30}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, err, "核查错误：属性 Data3 的值 30 不符合条件 [(++#current) >31] ", result, false)
+	Equal(t, err, "核查错误：属性 Data3 的值 30 不符合条件 [(++#current) >31] ", result, false)
 }
 
 func TestCondition2(t *testing.T) {
@@ -54,10 +53,10 @@ func TestCondition2(t *testing.T) {
 	// 测试 异常情况
 	value = ValueConditionEntity2{Age: 12, Judge: true}
 	result, err = mikilin.Check(value, "data1")
-	assert.True(t, result)
+	True(t, result)
 
 	// 测试 异常情况
 	value = ValueConditionEntity2{Age: 12, Judge: false}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, err, "核查错误：属性 Age 的值 12 不符合条件 [#root.Judge] ", result, false)
+	Equal(t, err, "核查错误：属性 Age 的值 12 不符合条件 [#root.Judge] ", result, false)
 }

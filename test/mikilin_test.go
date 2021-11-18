@@ -2,7 +2,6 @@ package main
 
 import (
 	mikilin "github.com/simonalong/mikilin-go"
-	"github.com/simonalong/mikilin-go/test/assert"
 	"testing"
 )
 
@@ -24,17 +23,17 @@ func TestMkBase1(t *testing.T) {
 	//测试 正常情况
 	value = MikilinBaseEntity{Age: 12}
 	result, err = mikilin.Check(value)
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 正常情况
 	value = MikilinBaseEntity{Age: 13, Name: "zhou"}
 	result, err = mikilin.Check(value)
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 异常情况
 	value = MikilinBaseEntity{Age: 13, Name: "陈真"}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, err, "[\"核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中\",\"核查错误：属性 Name 的值为非空字符\"]", result, false)
+	Equal(t, err, "[\"核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中\",\"核查错误：属性 Name 的值为非空字符\"]", result, false)
 }
 
 func TestMkBase2(t *testing.T) {
@@ -45,17 +44,17 @@ func TestMkBase2(t *testing.T) {
 	//测试 正常情况
 	value = MikilinBaseEntity2{Age: 12}
 	result, err = mikilin.Check(value)
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 正常情况
 	value = MikilinBaseEntity2{Age: 13, Name: "zhou"}
 	result, err = mikilin.Check(value)
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 异常情况
 	value = MikilinBaseEntity2{Age: 13, Name: "陈真"}
 	result, err = mikilin.Check(value)
-	assert.Equal(t, "[\"核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中\",\"核查错误：属性 Name 的值为非空字符\"]", err, result, false)
+	Equal(t, "[\"核查错误：属性 Name 的值 陈真 不在只可用列表 [zhou 宋江] 中\",\"核查错误：属性 Name 的值为非空字符\"]", err, result, false)
 }
 
 // 压测进行基准测试

@@ -2,7 +2,6 @@ package main
 
 import (
 	mikilin "github.com/simonalong/mikilin-go"
-	"github.com/simonalong/mikilin-go/test/assert"
 	"testing"
 )
 
@@ -30,12 +29,12 @@ func TestIsUnBlank1(t *testing.T) {
 	//测试 正常情况
 	value = IsUnBlankEntity1{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 正常情况
 	value = IsUnBlankEntity1{Name: ""}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, err, "核查错误：属性 Name 的值为非空字符", result, false)
+	Equal(t, err, "核查错误：属性 Name 的值为非空字符", result, false)
 }
 
 func TestIsUnBlank2(t *testing.T) {
@@ -46,12 +45,12 @@ func TestIsUnBlank2(t *testing.T) {
 	//测试 正常情况
 	value = IsUnBlankEntity1{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 正常情况
 	value = IsUnBlankEntity1{Name: ""}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, err, "核查错误：属性 Name 的值为非空字符", result, false)
+	Equal(t, err, "核查错误：属性 Name 的值为非空字符", result, false)
 }
 
 // 测试基本类型
@@ -63,10 +62,10 @@ func TestIsUnBlank3(t *testing.T) {
 	//测试 正常情况
 	value = IsUnBlankEntity3{Name: ""}
 	result, err = mikilin.Check(value, "name")
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 正常情况
 	value = IsUnBlankEntity3{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, err, "核查错误：属性 Name 的值为空字符", result, false)
+	Equal(t, err, "核查错误：属性 Name 的值为空字符", result, false)
 }

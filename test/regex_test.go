@@ -2,7 +2,6 @@ package main
 
 import (
 	mikilin "github.com/simonalong/mikilin-go"
-	"github.com/simonalong/mikilin-go/test/assert"
 	"testing"
 )
 
@@ -19,17 +18,17 @@ func TestRegex(t *testing.T) {
 	// 测试 正常情况
 	value = ValueRegexEntity{Name: "zhouOKzhen"}
 	result, err = mikilin.Check(value, "name")
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 正常情况
 	value = ValueRegexEntity{Age: 13}
 	result, err = mikilin.Check(value, "age")
-	assert.TrueErr(t, result, err)
+	TrueErr(t, result, err)
 
 	// 测试 异常情况
 	value = ValueRegexEntity{Name: "chenzhen"}
 	result, err = mikilin.Check(value, "name")
-	assert.Equal(t, "核查错误：属性 Name 的值 chenzhen 没命中只允许的正则表达式 ^zhou.*zhen$ ", err, result, false)
+	Equal(t, "核查错误：属性 Name 的值 chenzhen 没命中只允许的正则表达式 ^zhou.*zhen$ ", err, result, false)
 }
 
 // Regex的基准测试
