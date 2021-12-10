@@ -14,11 +14,11 @@ type BlackWhiteMatch struct {
 }
 
 func (blackWhiteMatch *BlackWhiteMatch) SetBlackMsg(format string, a ...interface{}) {
-	blackWhiteMatch.BlackMsg = fmt.Sprintf("核查错误："+format, a...)
+	blackWhiteMatch.BlackMsg = fmt.Sprintf(format, a...)
 }
 
 func (blackWhiteMatch *BlackWhiteMatch) SetWhiteMsg(format string, a ...interface{}) {
-	blackWhiteMatch.WhiteMsg = fmt.Sprintf("核查错误："+format, a...)
+	blackWhiteMatch.WhiteMsg = fmt.Sprintf(format, a...)
 }
 
 func (blackWhiteMatch *BlackWhiteMatch) GetWhitMsg() string {

@@ -421,8 +421,8 @@ func judgeMatch(matchers []*matcher.Matcher, object interface{}, field reflect.S
 	return false, util.ArraysToString(errMsgArray)
 }
 
-func RegisterFun(funName string, fun interface{}) {
-	matcher.RegisterFun(funName, fun)
+func RegisterCustomize(funName string, fun interface{}) {
+	matcher.RegisterCustomize(funName, fun)
 }
 
 // 包的初始回调

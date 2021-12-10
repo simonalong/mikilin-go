@@ -74,7 +74,7 @@ func BuildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 	addMatcher(objectTypeFullName, objectFieldName, &CustomizeMatch{funValue: reflect.ValueOf(fun), expression: expression}, errMsg, true)
 }
 
-func RegisterFun(funName string, fun interface{}) {
+func RegisterCustomize(funName string, fun interface{}) {
 	funValue := reflect.ValueOf(fun)
 	if funValue.Kind() != reflect.Func {
 		log.Errorf("fun is not fun type")

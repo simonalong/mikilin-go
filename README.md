@@ -393,7 +393,7 @@ func JudgeString1(name string) bool {
 
 // 由于go反射功能没那么强，因此需要用户自己先将函数和name进行注册
 func init() {
-  mikilin.RegisterFun("judge1Name", JudgeString1)
+  mikilin.RegisterCustomize("judge1Name", JudgeString1)
 }
 ```
 ##### 说明：
@@ -446,8 +446,8 @@ func JudgeString3(customize CustomizeEntity3, name string) (bool, string) {
 }
 
 func init() {
-    mikilin.RegisterFun("judge2Name", JudgeString2)
-    mikilin.RegisterFun("judge3Name", JudgeString3)
+    mikilin.RegisterCustomize("judge2Name", JudgeString2)
+    mikilin.RegisterCustomize("judge3Name", JudgeString3)
 }
 ```
 

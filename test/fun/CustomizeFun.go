@@ -48,7 +48,7 @@ func JudgeString3(customize CustomizeEntity3, name string) (bool, string) {
 }
 
 func init() {
-	mikilin.RegisterFun("judge1Name", JudgeString1)
-	mikilin.RegisterFun("judge2Name", JudgeString2)
-	mikilin.RegisterFun("judge3Name", JudgeString3)
+	mikilin.RegisterCustomize("judge1Name", JudgeString1)
+	mikilin.RegisterCustomize("judge2Name", JudgeString2)
+	mikilin.RegisterCustomize("judge3Name", JudgeString3)
 }
