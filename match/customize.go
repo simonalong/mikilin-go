@@ -25,8 +25,19 @@ func (customizeMatch *CustomizeMatch) Match(object interface{}, field reflect.St
 		in[0] = reflect.ValueOf(fieldValue)
 	} else {
 		in = make([]reflect.Value, 2)
-		in[0] = reflect.ValueOf(object)
-		in[1] = reflect.ValueOf(fieldValue)
+		inKind0 := customizeMatch.funValue.Type().In(0).Kind()
+		inKind1 := customizeMatch.funValue.Type().In(1).Kind()
+
+		if inKind0 == reflect.ValueOf(object).Kind() && inKind1 == reflect.ValueOf(fieldValue).Kind() {
+			in[0] = reflect.ValueOf(object)
+			in[1] = reflect.ValueOf(fieldValue)
+		} else if inKind0 == reflect.ValueOf(fieldValue).Kind() && inKind1 == reflect.ValueOf(object).Kind() {
+			in[0] = reflect.ValueOf(fieldValue)
+			in[1] = reflect.ValueOf(object)
+		} else {
+			log.Errorf("the value don't match parameter of fun")
+			return false
+		}
 	}
 
 	retValues := customizeMatch.funValue.Call(in)
@@ -36,14 +47,29 @@ func (customizeMatch *CustomizeMatch) Match(object interface{}, field reflect.St
 		} else {
 			customizeMatch.SetWhiteMsg("属性 %v 的值 %v 没命中只允许条件回调 [%v] ", field.Name, fieldValue, customizeMatch.expression)
 		}
+		return retValues[0].Bool()
 	} else {
-		if retValues[0].Bool() {
-			customizeMatch.SetBlackMsg(retValues[1].String())
+		kind0 := retValues[0].Kind()
+		kind1 := retValues[1].Kind()
+
+		if kind0 == reflect.Bool {
+			if retValues[0].Bool() {
+				customizeMatch.SetBlackMsg(retValues[1].String())
+			} else {
+				customizeMatch.SetWhiteMsg(retValues[1].String())
+			}
+			return retValues[0].Bool()
+		} else if kind1 == reflect.Bool {
+			if retValues[1].Bool() {
+				customizeMatch.SetBlackMsg(retValues[0].String())
+			} else {
+				customizeMatch.SetWhiteMsg(retValues[0].String())
+			}
+			return retValues[1].Bool()
 		} else {
-			customizeMatch.SetWhiteMsg(retValues[1].String())
+			return retValues[0].Bool()
 		}
 	}
-	return retValues[0].Bool()
 }
 
 func (customizeMatch *CustomizeMatch) IsEmpty() bool {
@@ -97,8 +123,16 @@ func RegisterCustomize(funName string, fun interface{}) {
 			return
 		}
 	} else {
-		if funValue.Type().Out(0).Kind() != reflect.Bool && funValue.Type().Out(1).Kind() != reflect.String {
-			log.Errorf("the types of return must be bool and string")
+		kind0 := funValue.Type().Out(0).Kind()
+		kind1 := funValue.Type().Out(1).Kind()
+
+		if kind0 != reflect.Bool && kind0 != reflect.String {
+			log.Errorf("return type of customize's fun return must be bool or string")
+			return
+		}
+
+		if kind1 != reflect.Bool && kind1 != reflect.String {
+			log.Errorf("return type of customize's fun return must be bool or string")
 			return
 		}
 	}

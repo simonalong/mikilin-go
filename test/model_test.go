@@ -34,12 +34,12 @@ func TestModelIdCard(t *testing.T) {
 	// 测试 异常情况
 	value = ValueModelIdCardEntity{Data: "4109281002226311"}
 	result, err = mikilin.Check(value)
-	Equal(t, err, "核查错误：属性 Data 的值 4109281002226311 不符合身份证要求", result, false)
+	Equal(t, err, "属性 Data 的值 4109281002226311 不符合身份证要求", result, false)
 
 	// 测试 异常情况
 	value = ValueModelIdCardEntity{Data: "28712381"}
 	result, err = mikilin.Check(value)
-	Equal(t, err, "核查错误：属性 Data 的值 28712381 不符合身份证要求", result, false)
+	Equal(t, err, "属性 Data 的值 28712381 不符合身份证要求", result, false)
 }
 
 // 手机号
@@ -56,7 +56,7 @@ func TestModelPhone(t *testing.T) {
 	// 测试 异常情况
 	value = ValueModelPhone{Data: "28712381"}
 	result, err = mikilin.Check(value)
-	Equal(t, err, "核查错误：属性 Data 的值 28712381 没有命中只允许类型 [phone]", result, false)
+	Equal(t, err, "属性 Data 的值 28712381 没有命中只允许类型 [phone]", result, false)
 }
 
 // 固定电话
@@ -73,7 +73,7 @@ func TestModelFixedPhone(t *testing.T) {
 	// 测试 异常情况
 	value = ValueModelFixedPhoneEntity{Data: "1387772"}
 	result, err = mikilin.Check(value)
-	Equal(t, err, "核查错误：属性 Data 的值 1387772 没有命中只允许类型 [fixed_phone]", result, false)
+	Equal(t, err, "属性 Data 的值 1387772 没有命中只允许类型 [fixed_phone]", result, false)
 }
 
 // 邮箱
@@ -90,7 +90,7 @@ func TestModelMail(t *testing.T) {
 	// 测试 异常情况
 	value = ValueModelEmailEntity{Data: "123@"}
 	result, err = mikilin.Check(value)
-	Equal(t, err, "核查错误：属性 Data 的值 123@ 没有命中只允许类型 [mail]", result, false)
+	Equal(t, err, "属性 Data 的值 123@ 没有命中只允许类型 [mail]", result, false)
 }
 
 // ip地址
@@ -107,10 +107,10 @@ func TestModelIpAddress(t *testing.T) {
 	// 测试 异常情况
 	value = ValueModelIpAddressEntity{Data: "123.231.222"}
 	result, err = mikilin.Check(value)
-	Equal(t, err, "核查错误：属性 Data 的值 123.231.222 没有命中只允许类型 [ip]", result, false)
+	Equal(t, err, "属性 Data 的值 123.231.222 没有命中只允许类型 [ip]", result, false)
 
 	// 测试 异常情况
 	value = ValueModelIpAddressEntity{Data: "192.123.231.adf"}
 	result, err = mikilin.Check(value)
-	Equal(t, err, "核查错误：属性 Data 的值 192.123.231.adf 没有命中只允许类型 [ip]", result, false)
+	Equal(t, err, "属性 Data 的值 192.123.231.adf 没有命中只允许类型 [ip]", result, false)
 }

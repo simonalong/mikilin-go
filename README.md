@@ -35,7 +35,7 @@ func main() {
     // 核查
     result, err = mikilin.Check(value)
     if !result { 
-        // 核查错误：属性 Name 的值 chen 不在只可用列表 [zhou] 中 
+        // 属性 Name 的值 chen 不在只可用列表 [zhou] 中 
         log.Errorf(err)
     }
 }

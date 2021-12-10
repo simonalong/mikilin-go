@@ -111,7 +111,7 @@ var rootKey = "#root"
 func errMsgChange(errMsg string) string {
 	var matchKeys []string
 	var chgMsg strings.Builder
-	chgMsg.WriteString("sprintf(\"核查错误：")
+	chgMsg.WriteString("sprintf(\"")
 
 	var b strings.Builder
 	b.Grow(len(errMsg))

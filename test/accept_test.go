@@ -38,7 +38,7 @@ func TestAccept1(t *testing.T) {
 	// 测试 正常情况
 	value = AcceptEntity1{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
-	Equal(t, err, "核查错误：属性 Name 的值 zhou 位于禁用值 [zhou] 中", result, false)
+	Equal(t, err, "属性 Name 的值 zhou 位于禁用值 [zhou] 中", result, false)
 }
 
 func TestAccept2(t *testing.T) {
@@ -54,7 +54,7 @@ func TestAccept2(t *testing.T) {
 	// 测试 正常情况
 	value = AcceptEntity2{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
-	Equal(t, err, "核查错误：属性 Name 的值不为空", result, false)
+	Equal(t, err, "属性 Name 的值不为空", result, false)
 }
 
 func TestAccept3(t *testing.T) {
@@ -75,7 +75,7 @@ func TestAccept3(t *testing.T) {
 	// 测试 异常情况
 	value = AcceptEntity3{Name: "宋江"}
 	result, err = mikilin.Check(value, "name")
-	Equal(t, err, "[\"核查错误：属性 Name 的值为非空字符\",\"核查错误：属性 Name 的值 宋江 不在只可用列表 [zhou] 中\"]", result, false)
+	Equal(t, err, "[\"属性 Name 的值为非空字符\",\"属性 Name 的值 宋江 不在只可用列表 [zhou] 中\"]", result, false)
 }
 
 func TestAccept4(t *testing.T) {
@@ -91,10 +91,10 @@ func TestAccept4(t *testing.T) {
 	// 测试 异常情况
 	value = AcceptEntity4{Name: ""}
 	result, err = mikilin.Check(value, "name")
-	Equal(t, err, "核查错误：属性 Name 的值为空字符", result, false)
+	Equal(t, err, "属性 Name 的值为空字符", result, false)
 
 	// 测试 异常情况
 	value = AcceptEntity4{Name: "zhou"}
 	result, err = mikilin.Check(value, "name")
-	Equal(t, err, "核查错误：属性 Name 的值 zhou 位于禁用值 [zhou] 中", result, false)
+	Equal(t, err, "属性 Name 的值 zhou 位于禁用值 [zhou] 中", result, false)
 }

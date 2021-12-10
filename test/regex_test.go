@@ -28,7 +28,7 @@ func TestRegex(t *testing.T) {
 	// 测试 异常情况
 	value = ValueRegexEntity{Name: "chenzhen"}
 	result, err = mikilin.Check(value, "name")
-	Equal(t, "核查错误：属性 Name 的值 chenzhen 没命中只允许的正则表达式 ^zhou.*zhen$ ", err, result, false)
+	Equal(t, "属性 Name 的值 chenzhen 没命中只允许的正则表达式 ^zhou.*zhen$ ", err, result, false)
 }
 
 // Regex的基准测试
