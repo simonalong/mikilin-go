@@ -109,3 +109,34 @@ func TestCustomize4(t *testing.T) {
 	result, err = mikilin.Check(value)
 	Equal(t, err, "用户[zhou]没有满足年龄age > 12，当前年龄为：10", result, false)
 }
+
+func TestCustomize5(t *testing.T) {
+	var value fun.CustomizeEntity4
+	var result bool
+	var err string
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity4{Name: "zhou", Age: 20}
+	result, err = mikilin.Check(value, "name")
+	True(t, result)
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity4{Name: "宋江", Age: 20}
+	result, _ = mikilin.Check(value, "name")
+	True(t, result)
+
+	// 测试 异常情况
+	value = fun.CustomizeEntity4{Name: "陈真"}
+	result, err = mikilin.Check(value)
+	Equal(t, err, "没有命中可用的值'zhou'和'宋江'", result, false)
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity4{Name: "zhou", Age: 13}
+	result, _ = mikilin.Check(value)
+	True(t, result)
+
+	// 测试 异常情况
+	value = fun.CustomizeEntity4{Name: "zhou", Age: 10}
+	result, err = mikilin.Check(value)
+	Equal(t, err, "用户[zhou]没有满足年龄age > 12，当前年龄为：10", result, false)
+}

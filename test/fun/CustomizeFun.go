@@ -64,6 +64,19 @@ func JudgeString4(customize CustomizeEntity4, name string) (string, bool) {
 	}
 }
 
+func JudgeString5(name string, customize CustomizeEntity4) (string, bool) {
+	if name == "zhou" || name == "宋江" {
+		if customize.Age > 12 {
+			return "", true
+		} else {
+			return "用户[" + name + "]" + "没有满足年龄age > 12，" + "当前年龄为：" + fmt.Sprintf("%v", customize.Age), false
+		}
+
+	} else {
+		return "没有命中可用的值'zhou'和'宋江'", false
+	}
+}
+
 func init() {
 	mikilin.RegisterCustomize("judge1Name", JudgeString1)
 	mikilin.RegisterCustomize("judge2Name", JudgeString2)
