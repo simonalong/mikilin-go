@@ -94,7 +94,7 @@ func BuildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 
 	fun, contain := funMap[expression]
 	if !contain {
-		log.Errorf("the name of fun not find, funName is [%v]", expression)
+		log.Warnf("the name of fun not find, funName is [%v]", expression)
 		return
 	}
 	addMatcher(objectTypeFullName, objectFieldName, &CustomizeMatch{funValue: reflect.ValueOf(fun), expression: expression}, errMsg, true)
@@ -103,23 +103,23 @@ func BuildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 func RegisterCustomize(funName string, fun interface{}) {
 	funValue := reflect.ValueOf(fun)
 	if funValue.Kind() != reflect.Func {
-		log.Errorf("fun is not fun type")
+		log.Warnf("fun is not fun type")
 		return
 	}
 
 	if funValue.Type().NumIn() > 2 {
-		log.Errorf("the num of argument need to be less than or equal to 2")
+		log.Warnf("the num of argument need to be less than or equal to 2")
 		return
 	}
 
 	if funValue.Type().NumOut() > 2 {
-		log.Errorf("the num of return need to be less than or equal to 2")
+		log.Warnf("the num of return need to be less than or equal to 2")
 		return
 	}
 
 	if funValue.Type().NumOut() == 1 {
 		if funValue.Type().Out(0).Kind() != reflect.Bool {
-			log.Errorf("the type of return must be bool")
+			log.Warnf("the type of return must be bool")
 			return
 		}
 	} else {
@@ -127,12 +127,12 @@ func RegisterCustomize(funName string, fun interface{}) {
 		kind1 := funValue.Type().Out(1).Kind()
 
 		if kind0 != reflect.Bool && kind0 != reflect.String {
-			log.Errorf("return type of customize's fun return must be bool or string")
+			log.Warnf("return type of customize's fun return must be bool or string")
 			return
 		}
 
 		if kind1 != reflect.Bool && kind1 != reflect.String {
-			log.Errorf("return type of customize's fun return must be bool or string")
+			log.Warnf("return type of customize's fun return must be bool or string")
 			return
 		}
 	}
