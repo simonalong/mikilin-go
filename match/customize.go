@@ -103,36 +103,39 @@ func BuildCustomizeMatcher(objectTypeFullName string, fieldKind reflect.Kind, ob
 func RegisterCustomize(funName string, fun interface{}) {
 	funValue := reflect.ValueOf(fun)
 	if funValue.Kind() != reflect.Func {
-		log.Warnf("fun is not fun type")
+		log.Warnf("fun is not fun[%v] type", funName)
 		return
 	}
 
 	if funValue.Type().NumIn() > 2 {
-		log.Warnf("the num of argument need to be less than or equal to 2")
+		log.Warnf("the num of fun[%v] argument need to be less than or equal to 2", funName)
 		return
 	}
 
 	if funValue.Type().NumOut() > 2 {
-		log.Warnf("the num of return need to be less than or equal to 2")
+		log.Warnf("the num of fun[%v] return need to be less than or equal to 2", funName)
 		return
 	}
 
-	if funValue.Type().NumOut() == 1 {
+	if funValue.Type().NumOut() == 0 {
+		log.Warnf("the type of fun[%v] return must be bool", funName)
+		return
+	} else if funValue.Type().NumOut() == 1 {
 		if funValue.Type().Out(0).Kind() != reflect.Bool {
-			log.Warnf("the type of return must be bool")
+			log.Warnf("the type of fun[%v] return must be bool", funName)
 			return
 		}
-	} else {
+	} else if funValue.Type().NumOut() == 2 {
 		kind0 := funValue.Type().Out(0).Kind()
 		kind1 := funValue.Type().Out(1).Kind()
 
 		if kind0 != reflect.Bool && kind0 != reflect.String {
-			log.Warnf("return type of customize's fun return must be bool or string")
+			log.Warnf("return type of fun[%v] return must be bool or string", funName)
 			return
 		}
 
 		if kind1 != reflect.Bool && kind1 != reflect.String {
-			log.Warnf("return type of customize's fun return must be bool or string")
+			log.Warnf("return type of fun[%v] return must be bool or string", funName)
 			return
 		}
 	}
