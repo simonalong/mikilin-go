@@ -1,6 +1,7 @@
 package matcher
 
 import (
+	"fmt"
 	"github.com/simonalong/mikilin-go/constant"
 	log "github.com/sirupsen/logrus"
 	"reflect"
@@ -19,6 +20,13 @@ var funMap = make(map[string]interface{})
 type MatchJudge func(interface{}) bool
 
 func (customizeMatch *CustomizeMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+	defer func() {
+		if err := recover(); err != nil {
+			_ = fmt.Errorf("call match err: %v", err)
+			return
+		}
+	}()
+
 	var in []reflect.Value
 	if customizeMatch.funValue.Type().NumIn() == 1 {
 		in = make([]reflect.Value, 1)
