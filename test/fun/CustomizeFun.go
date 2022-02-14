@@ -23,6 +23,11 @@ type CustomizeEntity4 struct {
 	Age  int
 }
 
+type CustomizeEntity5 struct {
+	Name string `match:"customize=judge5Name"`
+	Age  int
+}
+
 func JudgeString1(name string) bool {
 	if name == "zhou" || name == "宋江" {
 		return true
@@ -64,7 +69,8 @@ func JudgeString4(customize CustomizeEntity4, name string) (string, bool) {
 	}
 }
 
-func JudgeString5(name string, customize CustomizeEntity4) (string, bool) {
+func JudgeString5(customize CustomizeEntity5) (string, bool) {
+	var name = customize.Name
 	if name == "zhou" || name == "宋江" {
 		if customize.Age > 12 {
 			return "", true
@@ -82,4 +88,5 @@ func init() {
 	mikilin.RegisterCustomize("judge2Name", JudgeString2)
 	mikilin.RegisterCustomize("judge3Name", JudgeString3)
 	mikilin.RegisterCustomize("judge4Name", JudgeString4)
+	mikilin.RegisterCustomize("judge5Name", JudgeString5)
 }

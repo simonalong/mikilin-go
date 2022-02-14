@@ -140,3 +140,18 @@ func TestCustomize5(t *testing.T) {
 	result, err = mikilin.Check(value)
 	Equal(t, err, "用户[zhou]没有满足年龄age > 12，当前年龄为：10", result, false)
 }
+
+func TestCustomize5_1(t *testing.T) {
+	var value fun.CustomizeEntity5
+	var result bool
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity5{Name: "zhou", Age: 20}
+	result, _ = mikilin.Check(value, "name")
+	True(t, result)
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity5{Name: "宋江", Age: 20}
+	result, _ = mikilin.Check(value, "name")
+	True(t, result)
+}

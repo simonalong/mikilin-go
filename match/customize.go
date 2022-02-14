@@ -30,7 +30,15 @@ func (customizeMatch *CustomizeMatch) Match(object interface{}, field reflect.St
 	var in []reflect.Value
 	if customizeMatch.funValue.Type().NumIn() == 1 {
 		in = make([]reflect.Value, 1)
-		in[0] = reflect.ValueOf(fieldValue)
+		inKind0 := customizeMatch.funValue.Type().In(0).Kind()
+		if inKind0 == reflect.ValueOf(object).Kind() {
+			in[0] = reflect.ValueOf(object)
+		} else if inKind0 == reflect.ValueOf(fieldValue).Kind() {
+			in[0] = reflect.ValueOf(fieldValue)
+		} else {
+			log.Errorf("the value don't match parameter of fun")
+			return false
+		}
 	} else {
 		in = make([]reflect.Value, 2)
 		inKind0 := customizeMatch.funValue.Type().In(0).Kind()
