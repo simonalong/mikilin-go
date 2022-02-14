@@ -3,6 +3,7 @@ package mikilin
 import (
 	"fmt"
 	"github.com/antonmedv/expr"
+	"github.com/go-eden/routine"
 	"github.com/simonalong/mikilin-go/constant"
 	matcher "github.com/simonalong/mikilin-go/match"
 	"github.com/simonalong/mikilin-go/util"
@@ -80,7 +81,9 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 			}
 
 			// 核查结果：任何一个属性失败，则返回失败
-			go check(object, field, fieldValue.Interface(), ch)
+			routine.Go(func() {
+				check(object, field, fieldValue.Interface(), ch)
+			})
 			checkResult := <-ch
 			if !checkResult.Result {
 				close(ch)
@@ -133,7 +136,9 @@ func Check(object interface{}, fieldNames ...string) (bool, string) {
 			}
 
 			// 核查结果：任何一个属性失败，则返回失败
-			go check(object, field, fieldValue.Interface(), ch)
+			routine.Go(func() {
+				go check(object, field, fieldValue.Interface(), ch)
+			})
 			checkResult := <-ch
 			if !checkResult.Result {
 				close(ch)
