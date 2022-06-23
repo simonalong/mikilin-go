@@ -19,7 +19,7 @@ type ModelMatch struct {
 
 var modelMap = map[string]*regexp.Regexp{}
 
-func (modelMatch *ModelMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+func (modelMatch *ModelMatch) Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	if nil == fieldValue {
 		return false
 	}

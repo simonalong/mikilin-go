@@ -19,7 +19,7 @@ var funMap = make(map[string]interface{})
 
 type MatchJudge func(interface{}) bool
 
-func (customizeMatch *CustomizeMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+func (customizeMatch *CustomizeMatch) Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	defer func() {
 		if err := recover(); err != nil {
 			_ = fmt.Errorf("call match err: %v", err)
@@ -39,10 +39,40 @@ func (customizeMatch *CustomizeMatch) Match(object interface{}, field reflect.St
 			log.Errorf("the value don't match parameter of fun")
 			return false
 		}
-	} else {
+	} else if customizeMatch.funValue.Type().NumIn() == 2 {
 		in = make([]reflect.Value, 2)
 		inKind0 := customizeMatch.funValue.Type().In(0).Kind()
 		inKind1 := customizeMatch.funValue.Type().In(1).Kind()
+
+		if inKind0 == reflect.ValueOf(object).Kind() {
+			in[0] = reflect.ValueOf(object)
+			if inKind1 == reflect.ValueOf(fieldValue).Kind() {
+				in[1] = reflect.ValueOf(fieldValue)
+			} else if inKind1 == reflect.ValueOf(parameterMap).Kind() {
+				in[1] = reflect.ValueOf(parameterMap)
+			} else {
+				log.Errorf("参数2 没有找到匹配的类型的值，只可为属性的类型或者map[string]interface{}的类型")
+				return false
+			}
+		} else if inKind0 == reflect.ValueOf(fieldValue).Kind() {
+			in[0] = reflect.ValueOf(fieldValue)
+			if inKind1 == reflect.ValueOf(object).Kind() {
+				in[1] = reflect.ValueOf(object)
+			} else if inKind1 == reflect.ValueOf(parameterMap).Kind() {
+				in[1] = reflect.ValueOf(parameterMap)
+			} else {
+				log.Errorf("参数2 没有找到匹配的类型的值，只可为属性所在的对象的类型或者map[string]interface{}的类型")
+				return false
+			}
+		} else {
+			log.Errorf("没有找到匹配的类型的值")
+			return false
+		}
+	} else if customizeMatch.funValue.Type().NumIn() == 3 {
+		in = make([]reflect.Value, 3)
+		inKind0 := customizeMatch.funValue.Type().In(0).Kind()
+		inKind1 := customizeMatch.funValue.Type().In(1).Kind()
+		inKind2 := customizeMatch.funValue.Type().In(2).Kind()
 
 		if inKind0 == reflect.ValueOf(object).Kind() && inKind1 == reflect.ValueOf(fieldValue).Kind() {
 			in[0] = reflect.ValueOf(object)
@@ -50,8 +80,12 @@ func (customizeMatch *CustomizeMatch) Match(object interface{}, field reflect.St
 		} else if inKind0 == reflect.ValueOf(fieldValue).Kind() && inKind1 == reflect.ValueOf(object).Kind() {
 			in[0] = reflect.ValueOf(fieldValue)
 			in[1] = reflect.ValueOf(object)
+		}
+
+		if inKind2 == reflect.ValueOf(parameterMap).Kind() {
+			in[2] = reflect.ValueOf(parameterMap)
 		} else {
-			log.Errorf("the value don't match parameter of fun")
+			log.Errorf("参数3不是map[string]interface{}类型，参数无法注入")
 			return false
 		}
 	}
@@ -123,8 +157,8 @@ func RegisterCustomize(funName string, fun interface{}) {
 		return
 	}
 
-	if funValue.Type().NumIn() > 2 {
-		log.Warnf("the num of fun[%v] argument need to be less than or equal to 2", funName)
+	if funValue.Type().NumIn() > 3 {
+		log.Warnf("the num of fun[%v] argument need to be less than or equal to 3", funName)
 		return
 	}
 

@@ -60,7 +60,7 @@ var digitRegex = regexp.MustCompile("^(0)|^[-+]?([1-9]+\\d*|0\\.(\\d*)|[1-9]\\d*
 // 时间的前后计算匹配：(-|+)yMd(h|H)msS
 var timePlusRegex = regexp.MustCompile("^([-+])?(\\d*y)?(\\d*M)?(\\d*d)?(\\d*H|\\d*h)?(\\d*m)?(\\d*s)?$")
 
-func (rangeMatch *RangeMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+func (rangeMatch *RangeMatch) Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	env := map[string]interface{}{
 		"begin": rangeMatch.Begin,
 		"end":   rangeMatch.End,

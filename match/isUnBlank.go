@@ -18,7 +18,7 @@ type IsUnBlankMatch struct {
 	IsUnBlank bool
 }
 
-func (isUnBlankMatch *IsUnBlankMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+func (isUnBlankMatch *IsUnBlankMatch) Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	if reflect.TypeOf(fieldValue).Kind() != field.Type.Kind() {
 		isUnBlankMatch.SetBlackMsg("属性 %v 的值不是字符类型", field.Name)
 		return false

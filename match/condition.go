@@ -20,7 +20,7 @@ type ConditionMatch struct {
 	Program    *vm.Program
 }
 
-func (conditionMatch *ConditionMatch) Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+func (conditionMatch *ConditionMatch) Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	env := map[string]interface{}{
 		"root":    object,
 		"current": fieldValue,

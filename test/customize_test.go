@@ -155,3 +155,34 @@ func TestCustomize5_1(t *testing.T) {
 	result, _ = mikilin.Check(value, "name")
 	True(t, result)
 }
+
+func TestCustomize6(t *testing.T) {
+	var value fun.CustomizeEntity6
+	var result bool
+	var pMap map[string]interface{}
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity6{}
+	pMap = map[string]interface{}{
+		"name": "zhou",
+		"age":  20,
+	}
+	result, _ = mikilin.CheckWithParameter(pMap, value, "name1")
+	True(t, result)
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity6{Name2: "zhou"}
+	pMap = map[string]interface{}{
+		"age": 20,
+	}
+	result, _ = mikilin.CheckWithParameter(pMap, value, "name2")
+	True(t, result)
+
+	// 测试 正常情况
+	value = fun.CustomizeEntity6{Name3: "zhou"}
+	pMap = map[string]interface{}{
+		"age": 20,
+	}
+	result, _ = mikilin.CheckWithParameter(pMap, value, "name3")
+	True(t, result)
+}

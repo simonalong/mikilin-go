@@ -6,7 +6,7 @@ import (
 )
 
 type Matcher interface {
-	Match(object interface{}, field reflect.StructField, fieldValue interface{}) bool
+	Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool
 	IsEmpty() bool
 	GetWhitMsg() string
 	GetBlackMsg() string
