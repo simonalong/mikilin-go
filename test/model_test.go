@@ -76,6 +76,23 @@ func TestModelFixedPhone(t *testing.T) {
 	Equal(t, err, "属性 Data 的值 1387772 没有命中只允许类型 [fixed_phone]", result, false)
 }
 
+// 手机号
+func TestModelPhone2(t *testing.T) {
+	var value ValueModelPhone
+	var result bool
+	var err string
+
+	// 测试 正常情况
+	value = ValueModelPhone{Data: "14500092345"}
+	result, err = mikilin.Check(value)
+	TrueErr(t, result, err)
+
+	// 测试 异常情况
+	value = ValueModelPhone{Data: "28712381"}
+	result, err = mikilin.Check(value)
+	Equal(t, err, "属性 Data 的值 28712381 没有命中只允许类型 [phone]", result, false)
+}
+
 // 邮箱
 func TestModelMail(t *testing.T) {
 	var value ValueModelEmailEntity

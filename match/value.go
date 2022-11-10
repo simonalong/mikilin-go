@@ -14,7 +14,7 @@ type ValueMatch struct {
 	Values []interface{}
 }
 
-func (valueMatch *ValueMatch) Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
+func (valueMatch *ValueMatch) Match(_ map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	values := valueMatch.Values
 
 	for _, value := range values {

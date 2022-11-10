@@ -189,6 +189,10 @@ func doCollectCollector(objType reflect.Type) {
 		return
 	}
 
+	if objType.Kind() != reflect.Struct {
+		return
+	}
+
 	objectFullName := objType.String()
 	for fieldIndex, num := 0, objType.NumField(); fieldIndex < num; fieldIndex++ {
 		field := objType.Field(fieldIndex)

@@ -1,7 +1,6 @@
 package matcher
 
 import (
-	"fmt"
 	"github.com/simonalong/mikilin-go/constant"
 	log "github.com/sirupsen/logrus"
 	"reflect"
@@ -22,7 +21,7 @@ type MatchJudge func(interface{}) bool
 func (customizeMatch *CustomizeMatch) Match(parameterMap map[string]interface{}, object interface{}, field reflect.StructField, fieldValue interface{}) bool {
 	defer func() {
 		if err := recover(); err != nil {
-			_ = fmt.Errorf("call match err: %v", err)
+			log.Errorf("call match err: %v", err)
 			return
 		}
 	}()
