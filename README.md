@@ -1,6 +1,6 @@
 ## mikilin-go
 
-mikilin-go是核查框架，该框架是java版本的 [核查框架Mikilin](https://github.com/simonAlong/Mikilin) 的go版本实现
+mikilin-go是核查框架，该框架是java版本的 [核查框架Mikilin](https://github.com/simonAlong/Mikilin) 的go版本实现。目前该项目已经作为公司级框架的validate模块了[isc-gobase](https://github.com/isyscore/isc-gobase)
 
 ## 安装
 
